@@ -63,7 +63,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5)
                new = c(names(data[[i]])[1:4], paste("SoilT", as.integer(names(data[[i]])[-c(1:4)]), sep="_")) )
       
       # convert last col to numeric
-      set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) 
+      set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) )
       
      }
     
