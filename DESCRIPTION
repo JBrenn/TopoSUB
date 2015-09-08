@@ -1,0 +1,21 @@
+Package: TopoSUB
+Version: 0.1
+Date: 2015-04-16
+Title: TopoSUB tool
+Author: Johannes Brenner <Johannes.Brenner@eurac.com>
+Maintainer: Johannes Brenner <Johannes.Brenner@eurac.com>
+Description: TopoSUB landscape clustering and GEOtop coupling
+License: LGPL (>= 2)
+LazyData: Yes
+LazyLoad: Yes
+Imports:
+    geotopbricks,
+    chron,
+    zoo,
+    hydroGOF,
+    raster,
+    sp,
+    ggplot2,
+    dplyr,
+    tidyr,
+    data.table

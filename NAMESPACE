@@ -1,0 +1,16 @@
+# Default NAMESPACE created by R
+# Remove the previous line if you edit this file
+
+import(geotopbricks)
+import(chron)
+import(zoo)
+import(hydroGOF)
+import(raster)
+import(sp)
+import(ggplot2)
+import(dplyr)
+import(tidyr)
+import(data.table)
+
+# Export all names
+exportPattern(".")

@@ -1,0 +1,385 @@
+---
+title: "Analyse TopoSUB simulation"
+author: "Johannes Brenner, EURAC research"
+date: "7. August 2015"
+output: html_document
+runtime: shiny
+---
+
+This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
+
+To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
+
+---
+
+```{r, include=FALSE}
+
+# load required libs
+
+if(!require(DataBaseAlpEnvEURAC)) {
+  
+  if(!require(devtools)) {
+    install.packages("devtools")
+    library(devtools)
+  }
+  
+  install.packages("DataBaseAlpEnvEURAC")
+  library(DataBaseAlpEnvEURAC)
+}
+
+if(!require(raster)) {
+  install.packages("raster")
+  library(raster)
+}
+
+if(!require(data.table)) {
+  install.packages("data.table")
+  library(data.table)
+}
+
+if(!require(dplyr)) {
+  install.packages("dplyr")
+  library(dplyr)
+}
+
+if(!require(tidyr)) {
+  install.packages("tidyr")
+  library(tidyr)
+}
+
+if(!require(leaflet)) {
+  install.packages("leaflet")
+  library(leaflet)
+}
+
+if(!require(zoo)) {
+  install.packages("zoo")
+  library(zoo)
+}
+
+if(!require(dygraphs)) {
+  install.packages("dygraphs")
+  library(dygraphs)
+}
+
+if(!require(rgdal)) {
+  install.packages("rgdal")
+  library(rgdal)
+}
+
+if(!require(chron)) {
+  install.packages("chron")
+  library(chron)
+}
+
+if(!require(d3heatmap)) {
+  install.packages("d3heatmap")
+  library(d3heatmap)
+}
+
+```
+
+```{r, include=FALSE}
+
+# load data
+#simpath <- "/run/user/1000/gvfs/smb-share:server=sdcalp01.eurac.edu,share=data2//Simulations/Simulation_GEOtop_1_225_ZH/Vinschgau/SimTraining/BrJ/Mazia/toposub/sim/1d/1d_001/000004"
+
+simpath <- "/home/jbr/Schreibtisch/topotestdata"
+
+# meta info Mazia stations
+data("station_meta")
+station_meta <- station_meta[c(2,3,16,18:21),]
+xy <- project(xy=cbind(station_meta$x,station_meta$y), proj = "+proj=utm +zone=32 ellps=WGS84", inv = T)
+station_meta$long <- xy[,1]
+station_meta$lat <- xy[,2]
+
+# toposub setup
+setup <- read.csv(file.path(simpath, "setup.txt"), header = FALSE)
+Nclust <- setup[setup$V2=="Nclust",3]
+
+locations <- read.csv(file.path(simpath, "locations.txt"), header = FALSE)
+
+# load simulation data - points
+load(file.path(simpath, "data.RData"))
+
+dates <- sort(format(as.Date(substr(unique(data_00004$Date12_DDMMYYYYhhmm_),1,10), "%d/%m/%Y"), "%Y-%m-%d"))
+
+# read landform to rst
+landform <- raster(x = file.path(simpath, paste("landform_", Nclust, ".asc", sep="")))
+
+landfval <- getValues(landform)
+landform[] <- ifelse(landfval==landfval[1], NA, landfval)
+
+elevation <- raster(x = file.path(simpath, "INmaps10", "dem.asc"))
+
+landcover <- raster(x = file.path(simpath, "INmaps10", "landcover.asc"))
+#soil <- raster(x = file.path(simpath, "INmaps10", "soil.asc"))
+
+# listpoints table
+listpoints <- read.csv(file.path(simpath, "listpoints.txt"))
+toDel <- which.max(listpoints$members)
+listpoints <- listpoints[listpoints$id!=toDel,]
+
+data_00004 <- data_00004[IDpoint!=toDel,]
+
+```
+
+### Choices
+
+
+
+```{r, echo=FALSE}
+
+inputPanel(
+  # choose variable
+  selectInput(inputId = "Variable", label = "Variable to investigate:",
+              choices = names(data_00004)[-c(1:4)], selected = names(data_00004)[-c(1:4)][1]),
+  
+  # choose point ID
+  selectInput(inputId = "IDpoint", label = "ID of point simulation:",
+              choices = unique(data_00004$IDpoint), selected = 1),
+  
+  # choose start day / end day
+  dateInput(inputId = "start", label = "Select Start Date", value = "2070-01-01", min = dates[1], max = tail(dates,1),
+            startview = "year"),
+  dateInput(inputId = "end", label = "Select End Date", value = "2099-12-31", min = dates[1], max = tail(dates,1),
+            startview = "year"),
+  
+  # choose aggregation function 
+  selectInput(inputId = "Aggregation", label = "Function to aggregate:",
+              choices = c("mean", "sum", "max", "min", "sd"), selected = "mean"),
+  
+  # smoothing of map?
+  radioButtons(inputId = "Interpolate", label = "Smooth Map", choices = c("YES","NO"), selected = "YES", 
+               inline = FALSE),
+  
+  submitButton(text = "Apply Changes", icon("refresh"))
+  )
+  
+  # get data
+#   output$date <- renderUI({
+#     seq(as.Date(input$start, "%Y-%m-%d"), as.Date(input$end, "%Y-%m-%d"), 1)
+#   })
+  
+#   output$map <- renderUI({
+#     varnr <- which(names(data_00004) ==  input$Variable)
+#     num_start <- as.numeric(as.Date(input$start, "%Y-%m-%d")); num_end <- as.numeric(as.Date(input$end, "%Y-%m-%d"))
+#     
+#     data_var <- data_00004[,c(1,4,varnr),with=F]
+#     data_var[,Date12_DDMMYYYYhhmm_ := as.numeric(as.Date(substr(Date12_DDMMYYYYhhmm_,1,10), "%d/%m/%Y"))]
+#     
+#     data_ <- 
+#       data_var %>%
+#         setnames(old = names(data_var), new = c("Date","IDpoint","VAR")) %>%
+#         filter(Date >= num_start & Date <= num_end) %>%
+#         group_by(IDpoint) %>%
+#         summarise_each(funs_(input$Aggregation))
+#     
+#     subs_df <- as.data.frame(data_[,c(1,3), with=F])
+#     rst <- subs(landform,subs_df)
+#     
+#     if(input$Aggregation=="YES") rst <- focal(rst, w=matrix(1, 7, 7), mean)
+#     
+#     rst
+#   })
+#   
+#   output$ts <- renderUI({
+#     varnr <- which(names(data_00004) ==  input$Variable)
+#     date <- as.Date(substr(data_00004$Date12_DDMMYYYYhhmm_[data_00004$IDpoint==input$IDpoint],1,10), "%d/%m/%Y")  
+#     datazoo <- zoo(data_00004[data_00004$IDpoint==input$IDpoint,input$Variable, with=F], date)
+#     datazoo_win <- window(datazoo, start = as.Date(input$start,"%Y-%m-%d"), end = as.Date(input$end,"%Y-%m-%d"))
+#     datazoo_win
+#   )}
+
+```
+
+---
+
+```{r, echo=FALSE}
+
+renderDataTable({
+  as.data.table(round(listpoints,2))
+}, options = list(pageLength=5, lengthMenu=c(5, 10, 15, 20, 50, 100))
+)
+
+```
+
+---
+### Mapping anomaly
+
+Anomaly of variable for a specific climate period (see choices above) compared to baseline (1970-2000). 
+
+```{r, echo=FALSE}
+
+# Mapping
+
+renderLeaflet(expr = {
+    
+    varnr <- which(names(data_00004) ==  input$Variable)
+    num_start <- as.numeric(as.Date(input$start, "%Y-%m-%d")); num_end <- as.numeric(as.Date(input$end, "%Y-%m-%d"))
+
+    num_start_baseline <- as.numeric(as.Date("1970-01-01", "%Y-%m-%d"))
+    num_end_baseline <- as.numeric(as.Date("1999-12-31", "%Y-%m-%d"))
+    
+    data_var <- data_00004[,c(1,4,varnr),with=F]
+    data_var[,Date12_DDMMYYYYhhmm_ := as.numeric(as.Date(substr(Date12_DDMMYYYYhhmm_,1,10), "%d/%m/%Y"))]
+    
+    data_ <- 
+      data_var %>%
+        setnames(old = names(data_var), new = c("Date","IDpoint","VAR")) %>%
+        filter(Date >= num_start & Date <= num_end) %>%
+        group_by(IDpoint) %>%
+        summarise_each(funs_(input$Aggregation))
+    
+    data_base <- 
+      data_var %>%
+        setnames(old = names(data_var), new = c("Date","IDpoint","VAR")) %>%
+        filter(Date >= num_start_baseline & Date <= num_end_baseline) %>%
+        group_by(IDpoint) %>%
+        summarise_each(funs_(input$Aggregation))
+    
+    data_[, dif := data_$VAR - data_base$VAR]
+    
+    subs_df <- as.data.frame(data_[,c(1,4), with=F])
+    rst <- subs(landform,subs_df)
+    
+    if(input$Interpolate=="YES") rst <- focal(rst, w=matrix(1, 7, 7), mean)
+  
+  pal1 <- colorNumeric(c("#FFFFCC", "#41B6C4", "#0C2C84"), values(rst), na.color = "transparent")
+  
+  crs(rst) <- "+proj=utm +zone=32 ellps=WGS84"
+  
+  lndf <- landform
+  lndf[] <- ifelse(landfval==input$IDpoint, values(elevation), NA)
+  crs(lndf) <- "+proj=utm +zone=32 ellps=WGS84"
+  
+  pal2 <- colorNumeric(c("#f03b20", "#feb24c", "#ffeda0"), values(lndf), na.color = "transparent")
+
+  crs(landcover) <- "+proj=utm +zone=32 ellps=WGS84"
+  #crs(soil) <- "+proj=utm +zone=32 ellps=WGS84"
+  
+  leaflet() %>%
+    addProviderTiles("Acetate.terrain", group="Terrain") %>%
+    addTiles(options = providerTileOptions(opacity = 0.3), group = "OSM") %>%  # Add default OpenStreetMap map tiles
+    #addRasterImage(soil, opacity = 0.5, group = "Soil") %>% # Add aggregated raster
+    addRasterImage(landcover, opacity = 0.5, group = "Landcover") %>% # Add aggregated raster
+    addRasterImage(rst, colors = pal1, opacity = 0.75, group = "Raster") %>% # Add aggregated raster
+    addRasterImage(lndf, colors = pal2, opacity = 0.4, group = "Landform") %>% # Add aggregated raster
+    addLegend(pal = pal1, values = values(rst), title = input$Variable) %>%
+    #addLegend(pal = pal2, values = values(lndf), title = "m a.s.l.") %>%
+    addCircleMarkers(lng=station_meta$long, lat=station_meta$lat, popup=paste(station_meta$name, ", ",  station_meta$h, "m a.s.l"), fill = F, group = "Stations") %>%
+    addLayersControl(position = "topleft" , overlayGroups = c("Terrain", "OSM", "Landcover", "Raster", "Landform", "Stations"),
+    options = layersControlOptions(collapsed = FALSE))
+  
+})
+
+```
+
+---
+
+### Time series
+
+Time series on daily scale and yearly anomalies to baseline mean/sum.
+
+```{r, echo=FALSE}
+
+# TimeSeries pointID
+
+renderDygraph({
+  
+    varnr <- which(names(data_00004) ==  input$Variable)
+    date <- as.Date(substr(data_00004$Date12_DDMMYYYYhhmm_[data_00004$IDpoint==input$IDpoint],1,10), "%d/%m/%Y")  
+    datazoo <- zoo(data_00004[data_00004$IDpoint==input$IDpoint,input$Variable, with=F], date)
+ #   datazoo_win <- window(datazoo, start = as.Date(input$start,"%Y-%m-%d"), end = as.Date(input$end,"%Y-%m-%d"))
+  
+  dygraph(datazoo) %>%
+    dyRangeSelector() %>%
+    dyRoller()
+})
+
+renderPlot({
+  
+    varnr <- which(names(data_00004) ==  input$Variable)
+    date <- as.Date(substr(data_00004$Date12_DDMMYYYYhhmm_[data_00004$IDpoint==input$IDpoint],1,10), "%d/%m/%Y")  
+    datazoo <- zoo(data_00004[data_00004$IDpoint==input$IDpoint,input$Variable, with=F], date)
+    
+    #yearly data
+    datazoo_yr <- aggregate(datazoo, years(time(datazoo)), FUN = input$Aggregation)
+    datazoo_yr <- datazoo_yr[-dim(datazoo_yr)[[1]],]
+    
+    datazoo_yr_dev <- datazoo_yr - mean(window(datazoo_yr, start = 1970, end=2000))
+    
+      # linear filter
+    op <- par(mfrow=c(1,1), las=1)
+    k = c(.5,1,1,1,.5)            # k is the vector of weights
+    k = k/sum(k)
+    fTy_dev <- stats::filter(ts(datazoo_yr_dev), sides=2, k)
+    plot(datazoo_yr_dev, type="h", ylab=paste("deviation", input$Variable), xlab="YEAR")
+    points(datazoo_yr_dev, pch=16, cex=.75)
+    lines(fTy_dev, col="red")
+    lines(lowess(datazoo_yr_dev), col="blue", lty="dashed", lwd=3)
+    abline(h=c(-1,0,1,2))
+    par(op)
+
+}
+)
+```
+
+---
+
+### Heatmap
+
+Yearly anomalies to baseline mean/sum.
+
+```{r, echo=FALSE}
+
+renderD3heatmap({
+  # prepare listpoints
+  names(listpoints)[2] <- "IDpoint"
+  
+  # baseline start: 1980-01-01
+  winstart <- as.numeric(as.Date("1980-01-01")); winend <- as.numeric(as.Date("2010-12-31"))
+  
+  date <- as.Date(substr(data_00004$Date12_DDMMYYYYhhmm_,1,10), "%d/%m/%Y")
+  datenum <- as.numeric(date)
+  year    <- years(date)
+  months  <-  as.numeric(format(date, "%m"))
+  data_00004[,"datenum"] <- datenum
+  data_00004[,"year"]    <- year
+  data_00004[,"month"]   <- months
+  
+  if (grepl("SWC", input$Variable))   {
+    data_base <- data_00004[datenum>winstart & datenum<winend & month > 3 & month < 11, c("IDpoint",input$Variable), with=F]
+  } else {
+    data_base <- data_00004[datenum>winstart & datenum<winend, c("IDpoint",input$Variable), with=F]
+  }
+  
+  setnames(data_base, names(data_base), c("IDpoint", "VAR"))
+  
+data_base_summ <-   
+  data_base %>%
+    group_by(IDpoint) %>%
+    summarise(meanVAR = mean(VAR)) %>%
+    merge(listpoints, by="IDpoint")
+
+  data <- data_00004[, c("year","IDpoint",input$Variable), with=F]
+  setnames(data, names(data), c("year", "IDpoint", "VAR"))
+
+data_year_mean <- 
+  data %>% 
+    group_by(year,IDpoint) %>%
+    summarise(meanVAR=mean(VAR)) %>%
+    spread(year,meanVAR)
+ 
+mat <- as.matrix(data_year_mean[, names(data_year_mean)[-1], with=F])
+vec <- c(data_base_summ[,"meanVAR",  with=F])$meanVAR
+var_dev  <- (mat - vec)
+var_perc <- var_dev / vec *100
+
+cellnote <- matrix(paste(as.character(round(var_perc,1)), "%; ", as.character(round(var_dev,3)), " UNITs",sep=""), nrow = nrow(var_perc) ,ncol = ncol(var_perc))
+
+d3heatmap(var_dev[,-dim(var_dev)[[2]]], Rowv=F, Colv=F, scale = "none", cellnote = cellnote[,-dim(var_dev)[[2]]], labRow = paste(listpoints$landcover, "-", round(listpoints$slp,0), "-", listpoints$IDpoint, sep=" "), dendrogram = "none")
+
+})
+
+```
