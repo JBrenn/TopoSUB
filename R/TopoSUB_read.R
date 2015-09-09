@@ -8,9 +8,9 @@
 #           "SoilLiqContentProfileFileWriteEnd", "SoilIceContentProfileFileWriteEnd")
 
 
-# library(geotopbricks)
+# library(geotopbricks) ::get.geotop.inpts.keyword.value
 # library(dplyr)
-# library(data.table)
+# library(data.table) ::fread ; ::setnames
 # library(AnalyseGeotop)
 
 TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5)
@@ -19,7 +19,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5)
   
   for (i in keys)
   {
-    data_name <- get.geotop.inpts.keyword.value(wpath = wpath, keyword = i)
+    data_name <- geotopbricks::get.geotop.inpts.keyword.value(wpath = wpath, keyword = i)
     #data <- read.csv(file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE)
     data[[i]] <- data.table::fread(input = file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE, na.strings=c("-9999"))
     
@@ -52,7 +52,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5)
       }
       
       # calculate snow cover days
-      data[[i]][,SnowCover_days_:= as.numeric(snow_water_equivalent_mm_>=5)] 
+      data[[i]][,SnowCover_days_:= as.numeric(snow_water_equivalent_mm_>=SnowCoverThres)] 
     
     }
 
