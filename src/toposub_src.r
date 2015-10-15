@@ -106,7 +106,7 @@ simpleScale <- function(data, pnames){
 }
 
 
-findN<-function(scaleDat, nMax, thresh, eroot_loc1){
+findN<-function(scaleDat, nMax, thresh, eroot_loc1, plot=FALSE){
 	
 	#calc. approx number of cluster - dont need to do for weighted run
 #make exp sequence
@@ -119,7 +119,8 @@ nseq=c(nseq,n)
 	
 wss1 <- (nrow(scaleDat)-1)*sum(apply(scaleDat,2,var))
 	
-jpeg(paste(eroot_loc1,'/wss.jpg',sep=''),width=600,height=800)
+if (plot)
+  jpeg(paste(eroot_loc1,'/wss.jpg',sep=''),width=600,height=800)
 
 wss<-sapply(nseq, function(x) sum(kmeans(scaleDat, centers=x)$withinss))
 #totss: The total sum of squares.

@@ -205,6 +205,7 @@ renderDataTable({
 ```
 
 ---
+
 ### Mapping anomaly
 
 Anomaly of variable for a specific climate period (see choices above) compared to baseline (1970-2000). 
@@ -213,8 +214,7 @@ Anomaly of variable for a specific climate period (see choices above) compared t
 
 # Mapping
 
-renderLeaflet(expr = {
-    
+renderLeaflet({
     varnr <- which(names(data_00004) ==  input$Variable)
     num_start <- as.numeric(as.Date(input$start, "%Y-%m-%d")); num_end <- as.numeric(as.Date(input$end, "%Y-%m-%d"))
 
@@ -321,8 +321,8 @@ renderPlot({
     abline(h=c(-1,0,1,2))
     par(op)
 
-}
-)
+})
+
 ```
 
 ---
@@ -378,7 +378,10 @@ var_perc <- var_dev / vec *100
 
 cellnote <- matrix(paste(as.character(round(var_perc,1)), "%; ", as.character(round(var_dev,3)), " UNITs",sep=""), nrow = nrow(var_perc) ,ncol = ncol(var_perc))
 
-d3heatmap(var_dev[,-dim(var_dev)[[2]]], Rowv=F, Colv=F, scale = "none", cellnote = cellnote[,-dim(var_dev)[[2]]], labRow = paste(listpoints$landcover, "-", round(listpoints$slp,0), "-", listpoints$IDpoint, sep=" "), dendrogram = "none")
+#d3heatmap(var_dev[,-dim(var_dev)[[2]]], Rowv=T, Colv=F, scale = "none", cellnote = cellnote[,-dim(var_dev)[[2]]], labRow = paste(listpoints$landcover, "-", round(listpoints$slp,0), "-", round(listpoints$dem,0), sep=" "), dendrogram = "row")
+
+d3heatmap(var_perc[,-dim(var_perc)[[2]]], Rowv=T, Colv=F, scale = "none", cellnote = cellnote[,-dim(var_dev)[[2]]], labRow = paste(listpoints$landcover, "-", round(listpoints$slp,0), "-", round(listpoints$dem,0), sep=" "), dendrogram = "row")
+
 
 })
 
