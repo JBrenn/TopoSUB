@@ -16,19 +16,23 @@
 # TopoSUB preprocessor
 #==============================================================================
 TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setup.txt", 
-                                  PredNamesList=list(topo=c("dem"),
+                                  PredNamesList=list(topo=c("dem", "slp", "svf"),
                                                       clas=c("landuse", "soil")),
                                   mode_ls="ols",
-                                  run_lsm=FALSE, copy_master=FALSE)
+                                  beg_cut="01/01/2080 00:00:00", end="31/12/2099 00:00:00",
+                                  run_lsm=FALSE, run_hidden=FALSE, copy_master=FALSE)
 {
-  #load libs
-  require(raster)
+  #load libs raster and geotopbricks (shouldn't be loaded in function but installed/sourced before!)
+  # no more necessary when package toposub is used
+  require(raster) 
+  # to get number of meteo files (not used so far) & number of soil / landuse types from geotop.inpts
+  require(geotopbricks)
   
   # method to concatenate
   "&" <- function(...) UseMethod("&") 
   "&.default" <- .Primitive("&") 
   "&.character" <- function(...) paste(...,sep="") 
-  
+   
   # read location file
   locations <- read.csv(location.file, header = F, colClasses="character")
   apply(X = locations[,c(2,3)], MARGIN = 1, 
@@ -41,11 +45,24 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
   
   # set working dir 1 | root dir
   setwd(root)
+  
+  # master folder name 
+  mst_folder <- strsplit(inpts.file, "/")[[1]][1]
+  
+  # get number of meteo files/stations (NrMeteoFiles)
+  NrMeteoFiles <- as.integer(geotopbricks::get.geotop.inpts.keyword.value(keyword = "NumberOfMeteoStations", wpath = mst_folder))
+   
+  # get number of soil types (Nsoil)
+  Nsoil <- as.integer(geotopbricks::get.geotop.inpts.keyword.value(keyword = "SoilLayerTypes", wpath = mst_folder))
+  
+  # get number of soil types (Nlandcover)
+  Nlandcover <- as.integer(geotopbricks::get.geotop.inpts.keyword.value(keyword = "NumLandCoverTypes", wpath = mst_folder))
+  
   # include source code(s)
   sapply(dir(src, full.names = T), source)
   
   eroot_loc1 <- file.path( root, sim, paste("1d/1d_", exper1, sep="")) # 1d path
-  dir <- formatC( as.numeric(es), width=6, flag="0" ) # format experiment dir name
+  dir <- formatC( as.integer(es), width=6, flag="0" ) # format experiment dir name
   esPath <- file.path(eroot_loc1, dir) # experiment path
   dir.create( esPath, recursive=T ) 
   
@@ -66,77 +83,45 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
   setwd(eroot_loc1)
   
   # set up folders/ copy files etc
-  dir.create(esPath)
   dir.create(paste(esPath, '/fuzRst', sep=''))
   dir.create(paste(esPath, '/rec', sep=''))
-  mst <- paste(eroot_loc1,'/_master',sep='')
-  dir.create(mst, recursive=T)
-  
-  # copy geotop.inpts to sim dir
-  print(paste("copy files in folder ", mst, sep=""))
 
   # copy location and setup file
   file.copy(file.path(root,location.file), esPath , overwrite=T)
   file.copy(file.path(root,setup.file), esPath , overwrite=T)
 
+  if (copy_master)
+    file.copy(from = file.path(root, mst_folder), to = eroot_loc1, recursive = T)
+
   # copy master folder (nescessary for first run of new simulation 1d_00x)
-  if (copy_master) 
-  {
+
     if (file.exists(file.path(root,inpts.file))) {
-      print("copy GEOtop inpts file")
-      file.copy(file.path(eroot_loc1,inpts.file), esPath , overwrite=T)
+      print("copy GEOtop inpts file to sim folder")
+      file.copy(from = file.path(eroot_loc1, inpts.file), to = esPath , overwrite=TRUE)
     } else {
       print("GEOtop inpts file does not exist")
     }
-    
-    # copy predictor maps to sim dir
-    if (exists("pred.folder")) {
-      print("copy predictor maps")
-      dir.create( file.path(eroot_loc1, pred.folder) )
-      
-      src.files.pred <- dir(file.path(root,pred.folder),full.names = T)
-      dest.files.pred <- file.path(eroot_loc1,pred.folder,dir(file.path(root,pred.folder)))
-      file.copy(src.files.pred, dest.files.pred, overwrite=T )         
-    } else {
-      print("predictor maps do not exist")
-    }
-    
-    # copy meteo files to sim dir
-    if (exists("meteo.folder")) {
-      print("copy meteo files")
-      dir.create( file.path(esPath, meteo.folder) )
-      
-      src.files.meteo <- dir(file.path(root,meteo.folder),full.names = T)
-      dest.files.meteo <- file.path(eroot_loc1,meteo.folder,dir(file.path(eroot_loc1,meteo.folder)))
-      file.copy(src.files.meteo, dest.files.meteo, overwrite=T )         
-    } else {
-      print("meteo files do not exist")
-    }
-    
-    #copy soil files to sim dir
-    if (exists("soil.folder")) {
-      print("soil files ...")
-      dir.create( file.path(esPath, soil.folder) )
-      
-      src.files.soil <- dir(file.path(root,soil.folder),full.names = T)
-      dest.files.soil <- file.path(eroot_loc1,soil.folder,dir(file.path(eroot_loc1,soil.folder)))
-      file.copy(src.files.soil, dest.files.soil, overwrite=T )   
-    } else {
-      print("soil files do not exist")
-    }
-    
-    #copy horizon files to sim dir
-    if (exists("horizon.folder")) {
-      print("meteo files ...")
-      dir.create( file.path(esPath, horizon.folder) )
-      
-      src.files.horizon <- dir(file.path(root,horizon.folder),full.names = T)
-      dest.files.horizon <- file.path(eroot_loc1,horizon.folder,dir(file.path(eroot_loc1,horizon.folder)))
-      file.copy(src.files.horizon, dest.files.horizon, overwrite=T )         
-    } else {
-      print("horizon files do not exist")
-    }
-  }
+	
+	if (exists("pred.folder")){
+		print("copy predictor maps to sim folder")
+		file.copy(file.path(eroot_loc1, pred.folder), esPath , recursive=TRUE, overwrite=TRUE)
+	}
+	
+	if (exists("meteo.folder")){
+		print("copy meteo input data to sim folder")
+		file.copy(file.path(eroot_loc1, meteo.folder), esPath , recursive=TRUE, overwrite=TRUE)
+	}
+	
+	if (exists("soil.folder")){
+		print("copy soil input files to sim folder")
+		file.copy(file.path(eroot_loc1, soil.folder), esPath , recursive=TRUE, overwrite=TRUE)
+	}
+	
+	if (exists("horizon.folder")){
+		print("copy horizon files data to sim folder")
+		file.copy(file.path(eroot_loc1, horizon.folder), esPath , recursive=TRUE, overwrite=TRUE)
+	}
+  
   
   #create output directory
   dir.create(paste(esPath, "/out", sep=""))
@@ -198,7 +183,10 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
   #make scaled (see r function 'scale()')data frame of inputs)
   scaleDat_samp= simpleScale(data=samp_dat, pnames=predNames)
   
-  if (findn==1) Nclust=findN(scaleDat=scaleDat_samp, nMax=nMax.findn, thresh=thresh.findn)
+  if (findn==1) {
+    print("Find appropriate number of clusters")
+    Nclust <- findN(scaleDat=scaleDat_samp, nMax=nMax.findn, thresh=thresh.findn, eroot_loc1=eroot_loc1)
+  } 
   
   
 #=================random order of kmeans init conditions (variable order) experiment
@@ -215,10 +203,10 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
   #=============================================
   
   #kmeans on sample
-  clust1=Kmeans(scaleDat=scaleDat_samp,iter.max=iter.max,centers=Nclust, nstart=nstart1)
+  clust1 <- Kmeans(scaleDat=scaleDat_samp,iter.max=iter.max,centers=Nclust, nstart=nstart1)
   
   #scale whole dataset
-  scaleDat_all= simpleScale(data=gridmaps@data, pnames=predNames)
+  scaleDat_all <- simpleScale(data=gridmaps@data, pnames=predNames)
   
   #====================pca experiment stuff - all
   if (pca==1){
@@ -229,7 +217,7 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
   #==============================================
   
   #kmeans whole dataset
-  clust2=Kmeans(scaleDat=scaleDat_all,iter.max=iter.max,centers=clust1$centers, nstart=nstart2)
+  clust2 <- Kmeans(scaleDat=scaleDat_all,iter.max=iter.max,centers=clust1$centers, nstart=nstart2)
   
   #remove small samples, redist to nearestneighbour attribute space
   if(samp_reduce==1){
@@ -241,9 +229,9 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
   gridmaps$landform <- as.factor(clust3$cluster)
   write.asciigrid(gridmaps["clust"], paste(esPath,"/landform_",Nclust,".asc",sep=''),na.value=-9999)
   
-    asp=meanAspect(dat=gridmaps@data, agg=gridmaps$landform)
+    asp <- meanAspect(dat=gridmaps@data, agg=gridmaps$landform)
     
-    fun=c('mean', 'sd', 'sum', 'median')
+    fun <- c("mean", "sd", "sum", "median", "min", "max")
     for (FUN in fun){
       # excluded gridmaps$landform from calculations?
       samp=FUN_sampleCentroids(dat=gridmaps@data,predNames=predNames, agg=gridmaps$landform, FUN=FUN)
@@ -253,34 +241,43 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
     #write to disk for cmeans(replaced by kmeans 2)
     write.table(samp_mean,paste(esPath, '/samp_mean.txt' ,sep=''), sep=',', row.names=FALSE)
     write.table(samp_sd,paste(esPath, '/samp_sd.txt' ,sep=''), sep=',', row.names=FALSE)
-    write.table(samp_mean,paste(esPath, '/samp_sum.txt' ,sep=''), sep=',', row.names=FALSE)
-    write.table(samp_sd,paste(esPath, '/samp_median.txt' ,sep=''), sep=',', row.names=FALSE)
+    write.table(samp_sum,paste(esPath, '/samp_sum.txt' ,sep=''), sep=',', row.names=FALSE)
+    write.table(samp_median,paste(esPath, '/samp_median.txt' ,sep=''), sep=',', row.names=FALSE)
+    write.table(samp_min,paste(esPath, '/samp_min.txt' ,sep=''), sep=',', row.names=FALSE)
+    write.table(samp_max,paste(esPath, '/samp_max.txt' ,sep=''), sep=',', row.names=FALSE)
     
     #make driving topo data file  
-    lsp <- listpointsMake(samp_mean=samp_mean, samp_sum=samp_sum, asp=asp)
-    
-    #   narow <- which(lsp$ele == -1)
-    #   
-    #   if ("landcover" %in% names(lsp)) 
-    #   {
-    #     lsp$landcover <- round(lsp$landcover)
-    #     lsp$landcover[which(lsp$landcover == -1)] <- 1
-    #   }
-    #   if ("soil" %in% names(lsp)) 
-    #   {
-    #     lsp$soil <- round(lsp$soil)
-    #     lsp$soil[which(lsp$soil == -1)] <- 1
-    #   }
-    #   
-    #   lsp$ele[which(lsp$ele == -1)] <- 0
-    #   lsp$slp[which(lsp$slp == -1)] <- 0
-    #   lsp$svf[which(lsp$svf == -1)] <- 0
+    lsp <- listpointsMake(samp_mean=samp_mean, samp_sum=samp_sum, asp=asp, predNames = predNames)
     
     #lsp <- lsp[lsp$ele != -1,]
+  
+  if ("landcover" %in% names(lsp)) 
+  {
+    lsp$landcover <- round(lsp$landcover)
+	lsp$landcover[which(lsp$landcover == 0)] <- 1
+	lsp$landcover[which(lsp$landcover == (Nlandcover+1))] <- Nlandcover
+    lsp$landcover[which(lsp$landcover == -1)] <- 1
+  }
+  if ("soil" %in% names(lsp)) 
+  {
+    lsp$soil <- round(lsp$soil)
+	lsp$soil[which(lsp$soil == 0)] <- 1
+	lsp$soil[which(lsp$soil == (Nsoil+1))] <- Nsoil
+    lsp$soil[which(lsp$soil == -1)] <- 1
+  }
+  
+  if ("dem" %in% names(lsp)) 
+    lsp$dem[which(lsp$dem == -1)] <- 1
+  if ("slp" %in% names(lsp)) 
+    lsp$slp[which(lsp$slp == -1)] <- 1
+  if ("svf" %in% names(lsp))  
+    lsp$svf[which(lsp$svf == -1)] <- 1
+  
+  names(lsp) <- c("members", "id", names(samp_mean)[-1], "asp")
     
-    write.table(lsp,paste(esPath, '/listpoints.txt' ,sep=''), sep=',', row.names=FALSE)
+  write.table(lsp,paste(esPath, '/listpoints.txt' ,sep=''), sep=',', row.names=FALSE, quote=FALSE)
     #make horizon files
-    hor(listPath=esPath)
+  hor(listPath=esPath)
     
 if (run_lsm)
 {
@@ -425,12 +422,16 @@ if (run_lsm)
     # LSM
     #==============================================================================
     
-      setwd(gtexPath)
-      system(paste(gtex,esPath, sep=' '))
+	
+      setwd(esPath)
+	  
+	  if (run_hidden) {
+		system(paste("nohup", file.path(gtexPath, gtex), "./ &", sep=' '))
+	  } else {
+		system(paste(file.path(gtexPath, gtex), "./", sep=' '))
+	  }
+	  
       setwd(eroot_loc1)
-    
   }
 
- 
- 
 }
