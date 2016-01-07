@@ -24,9 +24,9 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
 {
   #load libs raster and geotopbricks (shouldn't be loaded in function but installed/sourced before!)
   # no more necessary when package toposub is used
-  require(raster) 
+#  require(raster) 
   # to get number of meteo files (not used so far) & number of soil / landuse types from geotop.inpts
-  require(geotopbricks)
+#  require(geotopbricks)
   
   # method to concatenate
   "&" <- function(...) UseMethod("&") 
