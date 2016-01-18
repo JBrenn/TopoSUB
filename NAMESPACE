@@ -11,6 +11,7 @@ import(ggplot2)
 import(dplyr)
 import(tidyr)
 import(data.table)
+import(stringr)
 
 # Export all names
 exportPattern(".")

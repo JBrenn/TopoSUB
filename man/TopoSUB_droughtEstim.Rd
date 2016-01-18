@@ -5,7 +5,7 @@
 Sequential dry days of a SMC series
 }
 \description{
-Calculates number of sequential dry days ("drought" duration D), intensity (I), and severity (S) of a soil moisture time series (used within function \emph{TopoSUB_droughtEstimation}). Method adapted from Shefield & Wood (2008).
+Calculates number of sequential dry days ("drought" duration D), intensity (I), and severity (S) of a soil moisture time series (used within function \emph{TopoSUB_droughtEstimation}). Method adapted from Sheffield & Wood (2008).
 }
 \usage{
 TopoSUB_droughtEstim(x)

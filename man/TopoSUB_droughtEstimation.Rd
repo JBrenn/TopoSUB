@@ -5,7 +5,7 @@
 Sequential dry days of a SMC series modeled with TopoSUB/GEOtop
 }
 \description{
-Calculates number of sequential dry days ("drought" duration D), intensity (I), and severity (S) of a soil moisture time series. Climatic periods of 30 years are conducted, baseline is covering the first 30 years of the time series. Method adapted from Shefield & Wood (2008). 
+Calculates number of sequential dry days ("drought" duration D), intensity (I), and severity (S) of a soil moisture time series. Climatic periods of 30 years are conducted, baseline is covering the first 30 years of the time series. Method adapted from Sheffield & Wood (2008). 
 }
 \usage{
 TopoSUB_droughtEstimation(data_)

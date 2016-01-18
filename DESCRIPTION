@@ -18,4 +18,5 @@ Imports:
     ggplot2,
     dplyr,
     tidyr,
-    data.table	
+    data.table,
+    stringr
