@@ -13,8 +13,10 @@
 # library(data.table) ::fread ; ::setnames
 # library(AnalyseGeotop)
 
-TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5)
+TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, ...)
 {
+  pb <- txtProgressBar(...)
+  
   data <- list()
   
   for (i in keys)
@@ -101,4 +103,8 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5)
     }
     return(data_join)
   }
+  
+  Sys.sleep(1)
+  close(pb)
+  
 }
