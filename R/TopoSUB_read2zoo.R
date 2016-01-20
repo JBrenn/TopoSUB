@@ -1,4 +1,4 @@
-TopoSUB_read2zoo <- function(data, var, do.zoo)
+TopoSUB_spreadVAR <- function(data, var, do.zoo)
 {
   
   var2select <- which(names(data) == var)
