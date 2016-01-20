@@ -3,9 +3,11 @@
 # join with dplyr
 
 # wpath <- "/run/user/1000/gvfs/smb-share:server=sdcalp01.eurac.edu,share=data2/Simulations/Simulation_GEOtop_1_225_ZH/Vinschgau/SimTraining/BrJ/Mazia/toposub/sim/1d/1d_001/000004/"
-
-# keys <- c("PointOutputFileWriteEnd", "SoilAveragedTempProfileFileWriteEnd",
-#           "SoilLiqContentProfileFileWriteEnd", "SoilIceContentProfileFileWriteEnd")
+# 
+# keys <- c("PointOutputFileWriteEnd","SoilLiqContentProfileFileWriteEnd")
+# 
+# select <- list(PointOutputFileWriteEnd=c("Date12[DDMMYYYYhhmm]","IDpoint","Tair[C]","Prain_over_canopy[mm]","Psnow_over_canopy[mm]","snow_water_equivalent[mm]","Evap_surface[mm]","Trasp_canopy[mm]","Hv[W/m2]","LEv[W/m2]","Hg_unveg[W/m2]","LEg_unveg[W/m2]","Hg_veg[W/m2]","LEg_veg[W/m2]","Canopy_fraction[-]"), 
+# SoilLiqContentProfileFileWriteEnd=c("Date12[DDMMYYYYhhmm]","IDpoint","20.000000","50.000000","200.000000","500.000000"))
 
 
 # library(geotopbricks) ::get.geotop.inpts.keyword.value
@@ -13,17 +15,18 @@
 # library(data.table) ::fread ; ::setnames
 # library(AnalyseGeotop)
 
-TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, ...)
+TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, select)
 {
-  pb <- txtProgressBar(...)
   
   data <- list()
   
   for (i in keys)
   {
     data_name <- geotopbricks::get.geotop.inpts.keyword.value(wpath = wpath, keyword = i)
+
     #data <- read.csv(file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE)
-    data[[i]] <- data.table::fread(input = file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE, na.strings=c("-9999"))
+    data[[i]] <- data.table::fread(input = file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE, 
+                                   na.strings=c("-9999"), showProgress = TRUE, select = select[[i]])
     
     # remove [] / - from data names
     setnames(x = data[[i]],old = names(data[[i]]),
@@ -62,7 +65,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, ...)
     {
       # change col names
       setnames(x = data[[i]],old = names(data[[i]]),
-               new = c(names(data[[i]])[1:4], paste("SoilT", as.integer(names(data[[i]])[-c(1:4)]), sep="_")) )
+               new = c(names(data[[i]])[1:2], paste("SoilT", as.integer(names(data[[i]])[-c(1:2)]), sep="_")) )
       
       # convert last col to numeric
       set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) )
@@ -72,7 +75,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, ...)
     if (i=="SoilLiqContentProfileFileWriteEnd")
     {
       setnames(x = data[[i]],old = names(data[[i]]),
-               new = c(names(data[[i]])[1:4], paste("SWC_liq", as.integer(names(data[[i]])[-c(1:4)]), sep="_")) )
+               new = c(names(data[[i]])[1:2], paste("SWC_liq", as.integer(names(data[[i]])[-c(1:2)]), sep="_")) )
       
       set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) )
       
@@ -85,26 +88,40 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, ...)
     if (i=="SoilIceContentProfileFileWriteEnd")
     {
       setnames(x = data[[i]],old = names(data[[i]]),
-               new = c(names(data[[i]])[1:4], paste("SWC_ice", as.integer(names(data[[i]])[-c(1:4)]), sep="_")) )
+               new = c(names(data[[i]])[1:2], paste("SWC_ice", as.integer(names(data[[i]])[-c(1:2)]), sep="_")) )
       
       set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) )
-      
     }
 
   }
   
   if (length(keys)==1) {
-    return(data[[1]])
+    data <- data[[1]]
   } else {
     data_join <- data[[1]]
     for (i in 2:length(keys)) {
       data_join <- dplyr::left_join(x = data_join, y = data[[i]], 
-                                    by = c("Date12_DDMMYYYYhhmm_","Simulation_Period", "Run", "IDpoint"))
+                                    by = c("Date12_DDMMYYYYhhmm_", "IDpoint"))
+      #data_join <- data_join[data[[i]]]
+      data <- data_join
     }
-    return(data_join)
+    
+    # get POSIX datetime
+    setnames(x = data, old = names(data), new = c("Date",names(data)[-1]))
+    
+    data.table::setkey(x = data, Date)
+    
+    # str split
+    data[, c("Date","time") := data.table::tstrsplit(Date, " ", fixed=TRUE)]
+    
+    # str paste
+    #data[, "Date" := paste(year,"-",month,"-",day, sep="")]
+    
+    # create POSIX object / date
+    #data[, "datetime" := fasttime::fastPOSIXct(x=datetime, required.components=3)]
+    data[, "Date" := as.Date(x=Date, format="%d/%m/%Y")]
+    
+    return(data)
   }
-  
-  Sys.sleep(1)
-  close(pb)
   
 }
