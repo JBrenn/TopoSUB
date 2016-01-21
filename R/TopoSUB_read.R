@@ -3,6 +3,7 @@
 # join with dplyr
 
 # wpath <- "/run/user/1000/gvfs/smb-share:server=sdcalp01.eurac.edu,share=data2/Simulations/Simulation_GEOtop_1_225_ZH/Vinschgau/SimTraining/BrJ/Mazia/toposub/sim/1d/1d_001/000004/"
+# wpath <- "/run/user/1000/gvfs/smb-share:server=sdcalp01.eurac.edu,share=data2/Simulations/Simulation_GEOtop_1_225_ZH/Vinschgau/SimTraining/BrJ/Mazia/toposub/sim/1d/1d_002/000002/"
 # 
 # keys <- c("PointOutputFileWriteEnd","SoilLiqContentProfileFileWriteEnd")
 # 
@@ -29,7 +30,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, sele
                                    na.strings=c("-9999"), showProgress = TRUE, select = select[[i]])
     
     # remove [] / - from data names
-    setnames(x = data[[i]],old = names(data[[i]]),
+    data.table::setnames(x = data[[i]],old = names(data[[i]]),
              new = str_replace_all(names(data[[i]]), "[/\\]\\[-]", "_") )
     
     if (i=="PointOutputFileWriteEnd")
@@ -45,9 +46,9 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, sele
       if (doLEHcalc)
       {
         LE <- data[[i]][,c("LEg_veg_W_m2_", "LEg_unveg_W_m2_", "LEv_W_m2_", "Canopy_fraction___"), with=FALSE]
-        setnames(LE,old = names(LE),new = c("g_veg","g_unveg","veg","cf"))
+        data.table::setnames(LE,old = names(LE),new = c("g_veg","g_unveg","veg","cf"))
         H <- data[[i]][,c("Hg_veg_W_m2_", "Hg_unveg_W_m2_", "Hv_W_m2_", "Canopy_fraction___"), with=FALSE]
-        setnames(H,old = names(H),new = c("g_veg","g_unveg","veg","cf"))
+        data.table::setnames(H,old = names(H),new = c("g_veg","g_unveg","veg","cf"))
         heat_data <- list(LE=LE, H=H)
         
         over_canopy <- AnalyseGeotop::GEOtop_EfluxOcanopy(heat_data)
@@ -64,7 +65,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, sele
     if (i=="SoilAveragedTempProfileFileWriteEnd")
     {
       # change col names
-      setnames(x = data[[i]],old = names(data[[i]]),
+      data.table::setnames(x = data[[i]],old = names(data[[i]]),
                new = c(names(data[[i]])[1:2], paste("SoilT", as.integer(names(data[[i]])[-c(1:2)]), sep="_")) )
       
       # convert last col to numeric
@@ -74,7 +75,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, sele
     
     if (i=="SoilLiqContentProfileFileWriteEnd")
     {
-      setnames(x = data[[i]],old = names(data[[i]]),
+      data.table::setnames(x = data[[i]],old = names(data[[i]]),
                new = c(names(data[[i]])[1:2], paste("SWC_liq", as.integer(names(data[[i]])[-c(1:2)]), sep="_")) )
       
       set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) )
@@ -87,7 +88,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, sele
     
     if (i=="SoilIceContentProfileFileWriteEnd")
     {
-      setnames(x = data[[i]],old = names(data[[i]]),
+      data.table::setnames(x = data[[i]],old = names(data[[i]]),
                new = c(names(data[[i]])[1:2], paste("SWC_ice", as.integer(names(data[[i]])[-c(1:2)]), sep="_")) )
       
       set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) )
@@ -107,7 +108,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, sele
     }
     
     # get POSIX datetime
-    setnames(x = data, old = names(data), new = c("Date",names(data)[-1]))
+    data.table::setnames(x = data, old = names(data), new = c("Date",names(data)[-1]))
     
     data.table::setkey(x = data, Date)
     
