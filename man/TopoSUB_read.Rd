@@ -8,7 +8,7 @@ Read topoSUB output
 Read topoSUB output and merge data to a data.table object
 }
 \usage{
-TopoSUB_read(wpath, keys, doLEHcalc=TRUE, SnowCoverThres=5)
+TopoSUB_read(wpath, keys, doLEHcalc=TRUE, SnowCoverThres=5, select)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,7 +22,9 @@ keywords, for further information refer to \pkg{geotopbricks}
 boolean, if TRUE (default) latent and sensible heat fluxes over canopy are calculated (for details see \emph{AnalyseGeotop::GEOtop_EfluxOcanopy})
 }
 \item{SnowCoverThres} Threshold (in mm H20) above which snow cover is given  
-%%     ~~Describe \code{x} here~~
+}
+\item{select}{
+variables to select, see select argument in data.table::fread 
 }
 
 \details{
