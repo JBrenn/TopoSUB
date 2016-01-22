@@ -10,23 +10,23 @@
 #   meteo input in GEOtop format
 #   parameter file 
 #     --> decide which format to use for easy handling
-#     --> 1: locations (character), 2: setup parameter (numeric), 3: switches (logical T/F or numeric 1/0)
+#     --> 1: locations (character), 2: setup & switches parameter (numeric / boolean)
 #   
 #==============================================================================
 # TopoSUB preprocessor
 #==============================================================================
 TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setup.txt", 
                                   PredNamesList=list(topo=c("dem", "slp", "svf"),
-                                                      clas=c("landuse", "soil")),
-                                  mode_ls="ols",
-                                  beg_cut="01/01/2080 00:00:00", end="31/12/2099 00:00:00",
-                                  run_lsm=FALSE, run_hidden=FALSE, copy_master=FALSE)
+                                                      clas=c("landcover", "soil")),
+                                  mode_ls="ols")
 {
   #load libs raster and geotopbricks (shouldn't be loaded in function but installed/sourced before!)
   # no more necessary when package toposub is used
-#  require(raster) 
+  #require(raster) 
   # to get number of meteo files (not used so far) & number of soil / landuse types from geotop.inpts
-#  require(geotopbricks)
+  #require(geotopbricks)
+  
+  #require(parallel)
   
   # method to concatenate
   "&" <- function(...) UseMethod("&") 
@@ -42,6 +42,13 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
   setup <- read.csv(setup.file, header = F)
   apply(X = setup[,c(2,3)], MARGIN = 1, 
         FUN = function(x) assign(x = x[1], value = as.numeric(x[2]), envir = .GlobalEnv) )
+  
+  # set switches to logical
+  copy_master  <- as.logical(copy_master)
+  
+  run_lsm  <- as.logical(run_lsm)
+  run_hidden  <- as.logical(run_hidden)
+  run_parallel <- as.logical(run_parallel)
   
   # set working dir 1 | root dir
   setwd(root)
@@ -425,12 +432,79 @@ if (run_lsm)
 	
       setwd(esPath)
 	  
-	  if (run_hidden) {
-		system(paste("nohup", file.path(gtexPath, gtex), "./ &", sep=' '))
-	  } else {
-		system(paste(file.path(gtexPath, gtex), "./", sep=' '))
-	  }
-	  
+    if(run_parallel)
+    {
+      # split listpoint file for parallel processing
+      lsp_split <- split(lsp, 1:nr_sim)
+      
+      # create folder for parallel processing
+      parallelPath <- paste(esPath, "parallel", sep="/")
+      dir.create(parallelPath)
+      
+      # create parallel computing directories
+      
+      mclapply(names(lsp_split), function(x){
+        # create directory 
+        es_folder <- formatC( as.integer(x), width=3, flag="0" )
+        sim_path  <- file.path(parallelPath,es_folder)
+        dir.create(path = sim_path)
+        
+        #copy simulation data
+        # geotop inpts
+        if (file.exists(file.path(root,inpts.file))) {
+          print("copy GEOtop inpts file to sim folder")
+          file.copy(from = file.path(eroot_loc1, inpts.file), to = sim_path , overwrite=TRUE)
+        } else {
+          print("GEOtop inpts file does not exist")
+        }
+        
+        if (exists("meteo.folder")){
+          print("copy meteo input data to sim folder")
+          file.copy(file.path(eroot_loc1, meteo.folder), sim_path , recursive=TRUE, overwrite=TRUE)
+        }
+        
+        if (exists("soil.folder")){
+          print("copy soil input files to sim folder")
+          file.copy(file.path(eroot_loc1, soil.folder), sim_path , recursive=TRUE, overwrite=TRUE)
+        }
+        
+        if (exists("horizon.folder")){
+          print("copy horizon files data to sim folder")
+          file.copy(file.path(eroot_loc1, horizon.folder), sim_path , recursive=TRUE, overwrite=TRUE)
+        }
+        
+        # sim point horizon files
+        print("copy horizon files to sim folder")
+        file.copy(file.path(esPath, "hor"), sim_path , recursive=TRUE, overwrite=TRUE)
+        
+        #create output directory
+        dir.create(paste(sim_path, "/out", sep=""))
+        
+        #create recovery directory
+        dir.create(paste(sim_path, "/rec", sep=""))
+        
+        # write listpoints
+        write.table(lsp_split[[x]],paste(sim_path, '/listpoints.txt' ,sep=''), sep=',', row.names=FALSE, quote=FALSE)
+      
+        #run geotop in sim path
+        if (run_hidden) {
+          system(paste("nohup", file.path(gtexPath, gtex), sim_path,"&", sep=' '))
+        } else {
+          system(paste(file.path(gtexPath, gtex), sim_path, sep=' '))
+        }
+        
+      })
+      
+      # combine data sets
+
+    } else {
+      if (run_hidden) {
+        system(paste("nohup", file.path(gtexPath, gtex), "./ &", sep=' '))
+      } else {
+        system(paste(file.path(gtexPath, gtex), "./", sep=' '))
+      }
+    }
+   
       setwd(eroot_loc1)
   }
 
