@@ -16,8 +16,21 @@
 # library(data.table) ::fread ; ::setnames
 # library(AnalyseGeotop)
 
-TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, select)
+TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, select, setup.file)
 {
+  
+  # read setup file
+  setup <- read.csv(file.path(wpath,setup.file), header = F)
+  apply(X = setup[,c(2,3)], MARGIN = 1, 
+        FUN = function(x) assign(x = x[1], value = as.numeric(x[2]), envir = .GlobalEnv) )
+  
+  # set run_parallel to logical
+  run_parallel <- as.logical(run_parallel)
+  
+  if (run_parallel) {
+    par_files <- dir(file.path(wpath, "parallel"), recursive = T)
+    par_files <- par_files[grepl(pattern = "out", par_files)]
+  } 
   
   data <- list()
   
@@ -25,9 +38,24 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, sele
   {
     data_name <- geotopbricks::get.geotop.inpts.keyword.value(wpath = wpath, keyword = i)
 
-    #data <- read.csv(file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE)
-    data[[i]] <- data.table::fread(input = file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE, 
-                                   na.strings=c("-9999"), showProgress = TRUE, select = select[[i]])
+    if (run_parallel) {
+      
+      parallel_folders <- str_split(pattern = "/",string = par_files, n = 2) 
+      parallel_folders <- unique(matrix(unlist(parallel_folders), ncol = 2, byrow = T)[,1])
+      
+      file_names <- file.path(wpath,"parallel",parallel_folders,paste(data_name,".txt",sep = ""))
+      
+      data[[i]] <- data.table::rbindlist(lapply(file_names,data.table::fread,header=TRUE,na.strings=c("-9999"),select = select[[i]]))
+      
+      
+    } else {
+       
+      #data <- read.csv(file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE)
+      data[[i]] <- data.table::fread(input = file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE, 
+                                     na.strings=c("-9999"), showProgress = TRUE, select = select[[i]])
+
+      }
+
     
     # remove [] / - from data names
     data.table::setnames(x = data[[i]],old = names(data[[i]]),
