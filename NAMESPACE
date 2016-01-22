@@ -12,6 +12,7 @@ import(dplyr)
 import(tidyr)
 import(data.table)
 import(stringr)
+import(parallel)
 
 # Export all names
 exportPattern(".")
