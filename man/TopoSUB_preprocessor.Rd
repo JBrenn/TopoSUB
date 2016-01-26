@@ -14,10 +14,10 @@ TopoSUB_preprocessor(location.file="locations.txt", setup.file="setup.txt",
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{location.file}{
-  file defining data locations, e.g. input maps
+  name of file file defining data locations, e.g. input maps
 }
   \item{setup.file}{
-  file defining TopoSUB model parameter
+  name of file defining TopoSUB model parameter
 }
  \item{PredNamesList}{
   list defining continious (e.g. topography, climate) and discrete features (e.g. land use, soil types)

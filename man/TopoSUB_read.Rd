@@ -8,7 +8,7 @@ Read topoSUB output
 Read topoSUB output and merge data to a data.table object
 }
 \usage{
-TopoSUB_read(wpath, keys, doLEHcalc=TRUE, SnowCoverThres=5, select)
+TopoSUB_read(wpath, keys, doLEHcalc=TRUE, SnowCoverThres=5, select, setup.file)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -25,6 +25,9 @@ boolean, if TRUE (default) latent and sensible heat fluxes over canopy are calcu
 }
 \item{select}{
 variables to select, see select argument in data.table::fread 
+}
+\item{setup.file}{
+name of file defining TopoSUB model parameter
 }
 
 \details{

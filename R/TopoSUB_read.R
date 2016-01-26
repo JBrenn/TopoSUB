@@ -20,7 +20,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, sele
 {
   
   # read setup file
-  setup <- read.csv(file.path(wpath,setup.file), header = F)
+  setup <- read.csv(file.path(wpath, setup.file), header = F)
   apply(X = setup[,c(2,3)], MARGIN = 1, 
         FUN = function(x) assign(x = x[1], value = as.numeric(x[2]), envir = .GlobalEnv) )
   
