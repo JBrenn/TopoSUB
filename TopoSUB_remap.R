@@ -9,7 +9,7 @@
 TopoSUB_remap <-  function(data, variable, wpath, location.file = "locations.txt", setup.file = "setup.txt",
                            periods=list(baseline=c(1980,2010), per1=c(2020,2050), per2=c(2045,2075), per3=c(2070,2100)),
                            periods_aggr = list(aggr=c("season", "veg_period"), fun="mean", diff = c("absolute","percentage")),
-                           sequence = list(period=c(1980,2010), aggregation=c("year","season","month")),
+                           sequence = list(period=c(1980,2010), aggr=c("year","season","month")),
                            postprocess = NULL,
                            coords = "+proj=utm +zone=32 ellps=WGS84")
 {
