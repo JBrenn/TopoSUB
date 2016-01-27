@@ -66,7 +66,7 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
   Nlandcover <- as.integer(geotopbricks::get.geotop.inpts.keyword.value(keyword = "NumLandCoverTypes", wpath = mst_folder))
   
   # include source code(s)
-  sapply(X = dir(path = src, full.names = T), FUN = source)
+  # sapply(X = dir(path = src, full.names = T), FUN = source)
   
   eroot_loc1 <- file.path( root, sim, paste("1d/1d_", exper1, sep="")) # 1d path
   dir <- formatC( as.integer(es), width=6, flag="0" ) # format experiment dir name
