@@ -1,7 +1,7 @@
 
 =======
 # TopoSUB
-R package for the TopoSUB Tool
+R package for landscape clustering and land-surface modelling (LSM)
 * preprocessing (landscape clustering, running LSM in parallel)
 * postprocessing (read output, mapping)
 * data analysis (specific variable postprocessing, e.g. crought indices)
