@@ -6,8 +6,9 @@
 # sequence  processing of monthly/yearly data, default: list(c(1980,2010), aggregation="year")
 # aggr_fun  function to aggregate variable
 
-TopoSUB_remap <-  function(data, variable, wpath, location.file, setup.file,
+TopoSUB_remap <-  function(data, variable, wpath, location.file = "locations.txt", setup.file = "setup.txt",
                            periods=list(baseline=c(1980,2010), per1=c(2020,2050), per2=c(2045,2075), per3=c(2070,2100)),
+                           periods_aggr = list(aggr=c("season", "veg_period"), fun="mean", diff = c("absolute","percentage")),
                            sequence = list(period=c(1980,2010), aggregation=c("year","season","month")),
                            postprocess = NULL)
 {
@@ -26,9 +27,9 @@ TopoSUB_remap <-  function(data, variable, wpath, location.file, setup.file,
   landform <- raster(x = file.path(wpath, paste("landform_",Nclust,".asc",sep="")))
   landformValues <- getValues(landform)
   landform[] <- ifelse(landformValues==landformValues[1], NA, landformValues)
-  
+
   # spread data by IDpoints
-  data_spread_zoo <- TopoSUB_spreadVAR(data=data, var=variable, do.zoo = TRUE)
+  data_per_y <- TopoSUB_spreadVAR(data=data_per, var=variable, do.zoo = TRUE)
   
   if (!is.null(periods))
   {
@@ -42,17 +43,126 @@ TopoSUB_remap <-  function(data, variable, wpath, location.file, setup.file,
       # window zoo object
       data_per <- window(x = data_spread_zoo, start = start_day, end = end_day)
       
+      # yearly mean/sums
+      data_per_y <- aggregate(data_per, years(time(data_per)), periods_aggr$fun)
+      
+      # monthly mean/sums
+      data_per_m <- aggregate(data_per, as.yearmon(time(data_per)), periods_aggr$fun)
+      
 #       if(!is.null(postprocess))
 #       {
 #         # doing postprocessing on variable
 #       }
       
-    })
+      # mean/sd value period 
+      period.fun <- apply(X = data_per_y, MARGIN = 2, FUN = mean)
+      out <- as.data.frame(period.fun)
+      
+      out$period.sd <- apply(X = data_per_y, MARGIN = 2, FUN = sd)
      
+      if (!is.null(periods_aggr$aggr)) 
+      {
+        # mean/sd value period per season
+        month_int <- as.integer(format(time(data_per_m),"%m"))
+        seasons <- list( MAM = c(month_int==3 | month_int==4 | month_int==5), 
+                         JJA = c(month_int==6 | month_int==7 | month_int==8),
+                         SON = c(month_int==9 | month_int==10 | month_int==11),
+                         DJF = c(month_int==12 | month_int==1 | month_int==2),
+                         VEG = c(month_int==4 | month_int==5 | month_int==6 | month_int==7 | month_int==8 | month_int==9 | month_int==10))
+      }
+
+      if(any(grepl(pattern = "season", x = periods_aggr$aggr))) 
+      {
+
+        # MAM
+        out$MAM.fun <- apply(X = data_per_m[seasons$MAM,], MARGIN = 2, FUN = mean)
+        out$MAM.sd  <- apply(X = data_per_m[seasons$MAM,], MARGIN = 2, FUN = sd)
+        
+        # JJA
+        out$JJA.fun <- apply(X = data_per_m[seasons$JJA,], MARGIN = 2, FUN = mean)
+        out$JJA.sd  <- apply(X = data_per_m[seasons$JJA,], MARGIN = 2, FUN = sd)
+        
+        # SON
+        out$SON.fun <- apply(X = data_per_m[seasons$SON,], MARGIN = 2, FUN = mean)
+        out$SON.sd  <- apply(X = data_per_m[seasons$SON,], MARGIN = 2, FUN = sd)
+        
+        # DJF
+        out$DJF.fun <- apply(X = data_per_m[seasons$DJF,], MARGIN = 2, FUN = mean)
+        out$DJF.sd  <- apply(X = data_per_m[seasons$DJF,], MARGIN = 2, FUN = sd)
+      }
+
+      # mean/sd value vegetation period
+      if(any(grepl(pattern = "veg", x = periods_aggr$aggr)))
+      {
+        # VEG
+        out$VEG.fun <- apply(X = data_per_m[seasons$VEG,], MARGIN = 2, FUN = mean)
+        out$VEG.sd  <- apply(X = data_per_m[seasons$VEG,], MARGIN = 2, FUN = sd)
+      }
+      
+      return(out)
+             
+    })
+    
+    # substitute landform and data for data4periods
+      maps_sub_all <- list()
+      
+      for (i in names(data4periods))
+      {
+        df <- data4periods[[i]]
+        df_names <- names(df)
+        df$IDpoint <- as.integer(rownames(df))
+        
+        map_rst <- sapply(X = df_names, FUN = function(x, landf=landform, y=df, by="IDpoint") {
+          df <- df[,c("IDpoint", x)]
+          rst <- subs(x=landf, y=df, by="IDpoint", which=x)
+        })
+        
+        names(map_rst) <- df_names
+        #map_brick <- brick(map_rst)
+        maps_sub_all[[i]] <- brick(map_rst)
+      }
+  
+    # substitute landform and data for differences (absolute and percent)
+      for (i in names(data4periods)[!grepl("base",names(periods))])
+      {
+        if (any(grepl("abs",periods_aggr$diff))) {
+          df <- data4periods[[i]] - data4periods[["baseline"]]
+          df <- df[,grepl(".fun", names(df))]
+          df_names <- names(df)
+          df$IDpoint <- as.integer(rownames(df))
+          
+          map_rst <- sapply(X = df_names, FUN = function(x, landf=landform, y=df, by="IDpoint") {
+            df <- df[,c("IDpoint", x)]
+            rst <- subs(x=landf, y=df, by="IDpoint", which=x)
+          })
+          
+          names(map_rst) <- df_names
+          #map_brick <- brick(map_rst)
+          maps_sub_all[[paste("diff","abs",i,sep="_")]] <- brick(map_rst)
+        }
+        
+        if (any(grepl("perc",periods_aggr$diff))) {
+          df <- (data4periods[[i]] - data4periods[["baseline"]]) /  data4periods[["baseline"]] *100
+          df <- df[,grepl(".fun", names(df))]
+          df_names <- names(df)
+          df$IDpoint <- as.integer(rownames(df))
+          
+          map_rst <- sapply(X = df_names, FUN = function(x, landf=landform, y=df, by="IDpoint") {
+            df <- df[,c("IDpoint", x)]
+            rst <- subs(x=landf, y=df, by="IDpoint", which=x)
+          })
+          
+          names(map_rst) <- df_names
+          #map_brick <- brick(map_rst)
+          maps_sub_all[[paste("diff","perc",i,sep="_")]] <- brick(map_rst)
+        }
+    }
+  
   }
   
   if (!is.null(sequence))
   {
+    
     
     # get start and end day of period in Date format
     start_day <- as.Date(paste(sequence$period[1]  ,"-01-01", sep=""))
