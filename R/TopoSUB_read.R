@@ -1,9 +1,8 @@
 # read TopoSUB output 
 # with data.table::fread
-# join with dplyr
+# join with dplyr (could be done with data.table too)
 
-# wpath <- "/run/user/1000/gvfs/smb-share:server=sdcalp01.eurac.edu,share=data2/Simulations/Simulation_GEOtop_1_225_ZH/Vinschgau/SimTraining/BrJ/Mazia/toposub/sim/1d/1d_001/000004/"
-## wpath <- "/run/user/1000/gvfs/smb-share:server=sdcalp01.eurac.edu,share=data2/Simulations/Simulation_GEOtop_1_225_ZH/Vinschgau/SimTraining/BrJ/Mazia/toposub/sim/1d/1d_002/000002/"
+# wpath <- "/run/user/1000/gvfs/smb-share:server=sdcalp01.eurac.edu,share=data2/Simulations/Simulation_GEOtop_1_225_ZH/Vinschgau/SimTraining/BrJ/Mazia/toposub/sim/1d/1d_002/000002/"
  
 # keys <- c("PointOutputFileWriteEnd","SoilLiqContentProfileFileWriteEnd")
 # 
@@ -14,7 +13,7 @@
 # library(geotopbricks) ::get.geotop.inpts.keyword.value
 # library(dplyr)
 # library(data.table) ::fread ; ::setnames
-# library(AnalyseGeotop)
+# library(stringr)
 
 TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, select, setup.file = "setup.txt")
 {
@@ -59,7 +58,7 @@ TopoSUB_read <- function(wpath, keys, doLEHcalc = TRUE, SnowCoverThres = 5, sele
     
     # remove [] / - from data names
     data.table::setnames(x = data[[i]],old = names(data[[i]]),
-             new = str_replace_all(names(data[[i]]), "[/\\]\\[-]", "_") )
+             new = stringr::str_replace_all(names(data[[i]]), "[/\\]\\[-]", "_") )
     
     if (i=="PointOutputFileWriteEnd")
     {
