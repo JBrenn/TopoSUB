@@ -6,7 +6,7 @@
 # sequence  processing of monthly/yearly data, default: list(c(1980,2010), aggregation="year")
 # aggr_fun  function to aggregate variable
 
-TopoSUB_remap <-  function(data, variable, wpath, location.file = "locations.txt", setup.file = "setup.txt",
+  TopoSUB_remap <-  function(data, variable, wpath, location.file = "locations.txt", setup.file = "setup.txt",
                            periods=list(baseline=c(1980,2010), per1=c(2020,2050), per2=c(2045,2075), per3=c(2070,2100)),
                            periods_aggr = list(aggr=c("season", "veg_period"), fun="mean", diff = c("absolute","percentage")),
                            sequence = list(period=c(1980,2010), aggr=c("year","season","month")),
@@ -50,16 +50,18 @@ TopoSUB_remap <-  function(data, variable, wpath, location.file = "locations.txt
       # window zoo object
       data_per <- window(x = data_spread_zoo, start = start_day, end = end_day)
       
+      #       if(!is.null(postprocess))
+      #       {
+      #         # doing postprocessing on variable
+      #       }
+      
       # yearly mean/sums
       data_per_y <- aggregate(data_per, years(time(data_per)), periods_aggr$fun)
       
       # monthly mean/sums
       data_per_m <- aggregate(data_per, as.yearmon(time(data_per)), periods_aggr$fun)
       
-#       if(!is.null(postprocess))
-#       {
-#         # doing postprocessing on variable
-#       }
+
       
       # mean/sd value period 
       period.fun <- apply(X = data_per_y, MARGIN = 2, FUN = mean)
