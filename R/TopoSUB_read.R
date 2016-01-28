@@ -6,8 +6,8 @@
  
 # keys <- c("PointOutputFileWriteEnd","SoilLiqContentProfileFileWriteEnd")
 # 
-select <- list(PointOutputFileWriteEnd=c("Date12[DDMMYYYYhhmm]","IDpoint","Tair[C]","Prain_over_canopy[mm]","Psnow_over_canopy[mm]","snow_water_equivalent[mm]","Evap_surface[mm]","Trasp_canopy[mm]","Hv[W/m2]","LEv[W/m2]","Hg_unveg[W/m2]","LEg_unveg[W/m2]","Hg_veg[W/m2]","LEg_veg[W/m2]","Canopy_fraction[-]"), 
-SoilLiqContentProfileFileWriteEnd=c("Date12[DDMMYYYYhhmm]","IDpoint","20.000000","50.000000","200.000000","500.000000"))
+# select <- list(PointOutputFileWriteEnd=c("Date12[DDMMYYYYhhmm]","IDpoint","Tair[C]","Prain_over_canopy[mm]","Psnow_over_canopy[mm]","snow_water_equivalent[mm]","Evap_surface[mm]","Trasp_canopy[mm]","Hv[W/m2]","LEv[W/m2]","Hg_unveg[W/m2]","LEg_unveg[W/m2]","Hg_veg[W/m2]","LEg_veg[W/m2]","Canopy_fraction[-]"), 
+# SoilLiqContentProfileFileWriteEnd=c("Date12[DDMMYYYYhhmm]","IDpoint","20.000000","50.000000","200.000000","500.000000"))
 
 
 # library(geotopbricks) ::get.geotop.inpts.keyword.value
@@ -47,7 +47,9 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
       
       file_names <- file.path(wpath,"parallel",parallel_folders,paste(data_name,".txt",sep = ""))
       
-      data[[i]] <- data.table::rbindlist(lapply(file_names,data.table::fread,header=TRUE,na.strings=c("-9999"),select = select[[i]]))
+      data[[i]] <- data.table::rbindlist(lapply(file_names,
+                                                data.table::fread,header=TRUE,na.strings=c("-9999"),
+                                                select = select[[i]]))
       
       
     } else {
