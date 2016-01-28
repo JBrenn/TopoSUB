@@ -490,7 +490,7 @@ if (run_lsm)
         write.table(lsp_split[[x]],paste(sim_path, '/listpoints.txt' ,sep=''), sep=',', row.names=FALSE, quote=FALSE)
         
         # get geotop system 
-        x <- paste("nohup", file.path(gtexPath, gtex), sim_path,"&", sep=' ')
+        x <- paste(file.path(gtexPath, gtex), sim_path, ">", file.path(sim_path,"toposub.log"),"&", sep=' ')
         return(x)
       })
   
