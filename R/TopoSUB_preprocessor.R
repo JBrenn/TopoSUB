@@ -434,7 +434,7 @@ if (run_lsm)
 	
       setwd(esPath)
 	  
-    if(run_parallel)
+    if (run_parallel)
     {
       # split listpoint file for parallel processing
       lsp_split <- split(lsp, 1:nr_sim)
@@ -489,16 +489,25 @@ if (run_lsm)
         # write listpoints
         write.table(lsp_split[[x]],paste(sim_path, '/listpoints.txt' ,sep=''), sep=',', row.names=FALSE, quote=FALSE)
         
+        if(!VSCjobs) 
+        {
+          #run geotop in sim path
+          if (run_hidden) {
+            system(paste("nohup", file.path(gtexPath, gtex), sim_path,"&", sep=' '))
+          } else {
+            system(paste(file.path(gtexPath, gtex), sim_path, sep=' '))
+          }
+        }
+        
         # get geotop system 
         x <- paste(file.path(gtexPath, gtex), sim_path, ">", file.path(sim_path,"toposub.log"),"&", sep=' ')
         return(x)
       })
-  
-      fromr2system <- unlist(fromr2system)
-      simPERcore   <- length(fromr2system)/Ncores
       
       if (VSCjobs) {
         # create job files for VSC dependent on number of cores
+        fromr2system <- unlist(fromr2system)
+        simPERcore   <- length(fromr2system)/Ncores
         
         for (i in 1:Ncores)
         {
@@ -526,20 +535,15 @@ if (run_lsm)
           for (i in 1:Ncores) system(command = paste("qsub job", i, ".sh", sep=""))
         }
         
-      } else {
-        #run geotop in sim path
-        if (run_hidden) {
-          system(paste("nohup", file.path(gtexPath, gtex), sim_path,"&", sep=' '))
-        } else {
-          system(paste(file.path(gtexPath, gtex), sim_path, sep=' '))
-        }
       }
 
     } else {
+      sim_path <- 
+      #run geotop in sim path
       if (run_hidden) {
-        system(paste("nohup", file.path(gtexPath, gtex), "./ &", sep=' '))
+        system(paste("nohup", file.path(gtexPath, gtex), esPath,"&", sep=' '))
       } else {
-        system(paste(file.path(gtexPath, gtex), "./", sep=' '))
+        system(paste(file.path(gtexPath, gtex), esPath, sep=' '))
       }
     }
    
