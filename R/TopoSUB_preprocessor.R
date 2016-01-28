@@ -50,6 +50,8 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
   run_hidden  <- as.logical(run_hidden)
   run_parallel <- as.logical(run_parallel)
   
+  VSCjobs <- as.logical(VSCjobs)
+  
   # set working dir 1 | root dir
   setwd(root)
   
@@ -442,7 +444,8 @@ if (run_lsm)
       dir.create(parallelPath)
       
       # create parallel computing directories
-      
+
+  fromr2system <-             
       mclapply(names(lsp_split), function(x){
         # create directory 
         es_folder <- formatC( as.integer(x), width=3, flag="0" )
@@ -485,17 +488,50 @@ if (run_lsm)
         
         # write listpoints
         write.table(lsp_split[[x]],paste(sim_path, '/listpoints.txt' ,sep=''), sep=',', row.names=FALSE, quote=FALSE)
+        
+        # get geotop system 
+        x <- paste("nohup", file.path(gtexPath, gtex), sim_path,"&", sep=' ')
+        return(x)
+      })
+  
+      fromr2system <- unlist(fromr2system)
+      simPERcore   <- length(fromr2system)/Ncores
       
+      if (VSCjobs) {
+        # create job files for VSC dependent on number of cores
+        
+        for (i in 1:Ncores)
+        {
+         sysT <- gsub(pattern = " ", replacement = "_", Sys.time()) 
+          
+         N <- paste("#$ -N TopoSUB", sysT, sep="_")
+         V <- "#$ -V"
+         pe <- paste("#$ -pe mpich", Ncores)
+         l <-  paste("#$ -l h_rt=", VSCtime, sep="")
+         M <-  paste("#$ -M ", VSCmail, sep="")    
+         m <-  "#$ -m beas"
+         
+         sims <- fromr2system[(1+(i-1)*simPERcore):(i*simPERcore)]
+         wait <- "wait" 
+         
+         infile <- c(N,V,pe,l,M,m,sims,wait)
+          
+         # write in job files
+         write.table(x = infile, file = file.path(parallelPath,paste("job",i,".sh",sep="")), 
+                                                  quote = FALSE, row.names = F, col.names = FALSE)
+        }
+        
+        # run jobs on VSC
+        for (i in 1:Ncores) system(command = paste("qsub job", i, ".sh", sep=""))
+        
+      } else {
         #run geotop in sim path
         if (run_hidden) {
           system(paste("nohup", file.path(gtexPath, gtex), sim_path,"&", sep=' '))
         } else {
           system(paste(file.path(gtexPath, gtex), sim_path, sep=' '))
         }
-        
-      })
-      
-      # combine data sets
+      }
 
     } else {
       if (run_hidden) {
