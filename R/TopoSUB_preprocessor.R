@@ -506,7 +506,7 @@ if (run_lsm)
           
          N <- paste("#$ -N TopoSUB", sysT, sep="_")
          V <- "#$ -V"
-         pe <- paste("#$ -pe mpich", Ncores)
+         pe <- "#$ -pe mpich 16"
          l <-  paste("#$ -l h_rt=", VSCtime, sep="")
          M <-  paste("#$ -M ", VSCmail, sep="")    
          m <-  "#$ -m beas"
@@ -522,7 +522,9 @@ if (run_lsm)
         }
         
         # run jobs on VSC
-        for (i in 1:Ncores) system(command = paste("qsub job", i, ".sh", sep=""))
+        if(run_jobs) {
+          for (i in 1:Ncores) system(command = paste("qsub job", i, ".sh", sep=""))
+        }
         
       } else {
         #run geotop in sim path
