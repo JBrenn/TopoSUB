@@ -504,7 +504,7 @@ if (run_lsm)
         {
          sysT <- gsub(pattern = " ", replacement = "_", Sys.time()) 
           
-         N <- paste("#$ -N TopoSUB", sysT, sep="_")
+         N <- paste("#$ -N ", i, "_TopoSUB", sep="")
          V <- "#$ -V"
          pe <- "#$ -pe mpich 16"
          l <-  paste("#$ -l h_rt=", VSCtime, sep="")
