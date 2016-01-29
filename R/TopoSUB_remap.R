@@ -177,7 +177,7 @@
     lapply(names(maps_sub_all), function(x) {
 #       writeRaster(x=maps_sub_all[[x]], filename = file.path(wpath, "periods/raster", paste(x,".tif")),  
 #                   options="INTERLEAVE=BAND", overwrite=TRUE)
-      print(paste("writing raster", variable, x))
+      print(paste("writing raster brick", variable, x))
       dir.create(file.path(wpath, "OUTperiods", variable, x), recursive = T)
       writeRaster(maps_sub_all[[x]], filename=file.path(wpath, "OUTperiods", variable, x, names(maps_sub_all[[x]])), 
                                                         bylayer=TRUE, format="GTiff", overwrite=T)
