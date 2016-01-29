@@ -185,7 +185,7 @@
     
   # write monthly / yearly means
 
-    dir.create(file.path(wpath, "OUTcsv", variable))
+    dir.create(file.path(wpath, "OUTcsv", variable), recursive = T)
     
     print("writing yearly means")
     write.zoo(x = data_spread_zoo_y, file = file.path(wpath, "OUTcsv", variable, "average_year.csv"), 
