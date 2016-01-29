@@ -179,8 +179,9 @@
 #                   options="INTERLEAVE=BAND", overwrite=TRUE)
       print(paste("writing raster brick", variable, x))
       dir.create(file.path(wpath, "OUTperiods", variable, x), recursive = T)
-      writeRaster(maps_sub_all[[x]], filename=file.path(wpath, "OUTperiods", variable, x, names(maps_sub_all[[x]])), 
-                                                        bylayer=TRUE, format="GTiff", overwrite=T)
+      writeRaster(maps_sub_all[[x]], 
+                  filename=file.path(wpath, "OUTperiods", variable, x, str_replace(names(maps_sub_all[[x]]),"[.]","_")), 
+                  bylayer=TRUE, format="GTiff", overwrite=T)
     })
     
   # write monthly / yearly means
