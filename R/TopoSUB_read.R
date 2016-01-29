@@ -94,14 +94,14 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
         over_canopy <- list()
         
         for (i in names(data)) 
-          over_canopy[[i]] <- canopy_fraction * (data[[i]]$g_veg + data[[i]]$veg) + (1-canopy_fraction) * data[[i]]$g_unveg
+          over_canopy[[i]] <- data[[i]]$cf * (data[[i]]$g_veg + data[[i]]$veg) + (1-data[[i]]$cf) * data[[i]]$g_unveg
         
         data[[i]][,LE_over_canopy_W_m2_:=over_canopy$LE]
         data[[i]][,H_over_canopy_W_m2_:=over_canopy$H]
       }
       
       # calculate snow cover days
-      data[[i]][,SnowCover_days_:= as.numeric(snow_water_equivalent_mm_>=SnowCoverThres)] 
+      data[[i]][,SnowCover_days_:= as.numeric(snow_water_equivalent_mm_ >= SnowCoverThres)] 
     
     }
 
