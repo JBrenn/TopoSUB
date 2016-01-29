@@ -38,28 +38,34 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
   
   for (i in keys)
   {
+    print(paste("reading data from key:" , i))
+    
+    # output path for key
     data_name <- geotopbricks::get.geotop.inpts.keyword.value(wpath = wpath, keyword = i)
 
+    
     if (run_parallel) {
-      
+    
+    # get parallel folders & file names to read    
       parallel_folders <- str_split(pattern = "/",string = par_files, n = 2) 
       parallel_folders <- unique(matrix(unlist(parallel_folders), ncol = 2, byrow = T)[,1])
       
       file_names <- file.path(wpath,"parallel",parallel_folders,paste(data_name,".txt",sep = ""))
-      
+    
+    # reading data     
       data[[i]] <- data.table::rbindlist(lapply(file_names,
                                                 data.table::fread,header=TRUE,na.strings=c("-9999"),
                                                 select = select[[i]]))
       
-      
     } else {
        
-      #data <- read.csv(file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE)
+      # reading data
       data[[i]] <- data.table::fread(input = file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE, 
                                      na.strings=c("-9999"), showProgress = TRUE, select = select[[i]])
 
       }
-
+    
+    print("pastprocess read data")
     
     # remove [] / - from data names
     data.table::setnames(x = data[[i]],old = names(data[[i]]),
