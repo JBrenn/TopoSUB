@@ -177,22 +177,27 @@
     lapply(names(maps_sub_all), function(x) {
 #       writeRaster(x=maps_sub_all[[x]], filename = file.path(wpath, "periods/raster", paste(x,".tif")),  
 #                   options="INTERLEAVE=BAND", overwrite=TRUE)
+      print(paste("writing raster", variable, x))
       dir.create(file.path(wpath, "OUTperiods", variable, x), recursive = T)
       writeRaster(maps_sub_all[[x]], filename=file.path(wpath, "OUTperiods", variable, x, names(maps_sub_all[[x]])), 
                                                         bylayer=TRUE, format="GTiff", overwrite=T)
     })
     
   # write monthly / yearly means
+
     dir.create(file.path(wpath, "OUTcsv", variable))
+    
+    print("writing yearly means")
     write.zoo(x = data_spread_zoo_y, file = file.path(wpath, "OUTcsv", variable, "average_year.csv"), 
               row.names = F, sep=",", quote=F)
+    
+    print("writing monthly means")
     write.zoo(x = data_spread_zoo_m, file = file.path(wpath, "OUTcsv", variable, "average_month.csv"), 
               row.names = F, sep=",", quote=F)
   }
   
   if (!is.null(sequence))
   {
-    
     
     # get start and end day of period in Date format
     start_day <- as.Date(paste(sequence$period[1]  ,"-01-01", sep=""))
