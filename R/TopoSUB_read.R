@@ -63,9 +63,9 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
       data[[i]] <- data.table::fread(input = file.path(wpath,paste(data_name,".txt",sep="")), header=TRUE, 
                                      na.strings=c("-9999"), showProgress = TRUE, select = select[[i]])
 
-      }
+    }
     
-    print("pastprocess read data")
+    print("postprocess read data")
     
     # remove [] / - from data names
     data.table::setnames(x = data[[i]],old = names(data[[i]]),
@@ -89,7 +89,12 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
         data.table::setnames(H,old = names(H),new = c("g_veg","g_unveg","veg","cf"))
         heat_data <- list(LE=LE, H=H)
         
-        over_canopy <- AnalyseGeotop::GEOtop_EfluxOcanopy(heat_data)
+        #over_canopy <- AnalyseGeotop::GEOtop_EfluxOcanopy(heat_data)
+        
+        over_canopy <- list()
+        
+        for (i in names(data)) 
+          over_canopy[[i]] <- canopy_fraction * (data[[i]]$g_veg + data[[i]]$veg) + (1-canopy_fraction) * data[[i]]$g_unveg
         
         data[[i]][,LE_over_canopy_W_m2_:=over_canopy$LE]
         data[[i]][,H_over_canopy_W_m2_:=over_canopy$H]
