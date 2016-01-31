@@ -60,9 +60,7 @@
       
       # monthly mean/sums
       data_per_m <- aggregate(data_per, as.yearmon(time(data_per)), periods_aggr$fun)
-      
-
-      
+    
       # mean/sd value period 
       period.fun <- apply(X = data_per_y, MARGIN = 2, FUN = mean)
       out <- as.data.frame(period.fun)
