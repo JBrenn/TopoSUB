@@ -539,7 +539,6 @@ if (run_lsm)
       }
 
     } else {
-      sim_path <- 
       #run geotop in sim path
       if (run_hidden) {
         system(paste("nohup", file.path(gtexPath, gtex), esPath, "&", sep=' '))
