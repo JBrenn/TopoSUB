@@ -513,7 +513,7 @@ if (run_lsm)
         {
          sysT <- gsub(pattern = " ", replacement = "_", Sys.time()) 
           
-         N <- paste("#$ -N ", i, "_TopoSUB", sep="")
+         N <- paste("#$ -N ", "_TopoSUB_", i, sep="")
          V <- "#$ -V"
          pe <- "#$ -pe mpich 16"
          l <-  paste("#$ -l h_rt=", VSCtime, sep="")
@@ -532,6 +532,7 @@ if (run_lsm)
         
         # run jobs on VSC
         if(run_jobs) {
+          system(command = paste("cd", parallelPath, sep=" "))
           for (i in 1:Ncores) system(command = paste("qsub job", i, ".sh", sep=""))
         }
         
