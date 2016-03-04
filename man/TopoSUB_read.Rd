@@ -8,7 +8,7 @@ Read topoSUB output
 Read topoSUB output and merge data to a data.table object
 }
 \usage{
-TopoSUB_read(wpath, keys, doLEHcalc=TRUE, SnowCoverThres=5, select, setup.file)
+TopoSUB_read(wpath, keys, doLEHcalc=TRUE, SnowCoverThres=5, select, setup.file="setup.txt", add_listfile=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -28,6 +28,9 @@ variables to select, see select argument in data.table::fread
 }
 \item{setup.file}{
 name of file defining TopoSUB model parameter
+}
+\item{add_listpoints}{
+boolean, if TRUE, attributes of listpoint file are join to output data, default=FALSE
 }
 
 \details{

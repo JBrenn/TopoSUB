@@ -19,7 +19,7 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
                          select = list(PointOutputFileWriteEnd=c("Date12[DDMMYYYYhhmm]","IDpoint","Tair[C]","Prain_over_canopy[mm]","Psnow_over_canopy[mm]","snow_water_equivalent[mm]","Evap_surface[mm]","Trasp_canopy[mm]","Hv[W/m2]","LEv[W/m2]","Hg_unveg[W/m2]","LEg_unveg[W/m2]","Hg_veg[W/m2]","LEg_veg[W/m2]","Canopy_fraction[-]"), 
                                        SoilLiqContentProfileFileWriteEnd=c("Date12[DDMMYYYYhhmm]","IDpoint","20.000000","50.000000","200.000000","500.000000"),
                                        SoilIceContentProfileFileWriteEnd=c("Date12[DDMMYYYYhhmm]","IDpoint","20.000000","50.000000","200.000000","500.000000")),
-                         doLEHcalc = TRUE, SnowCoverThres = 5, setup.file = "setup.txt")
+                         doLEHcalc = TRUE, SnowCoverThres = 5, setup.file = "setup.txt", add_listpoint = FALSE)
 {
   
   # read setup file
@@ -187,6 +187,15 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
     
     # order data
     data[order(Date),]
+    
+    if (add_listpoint) {
+      # add topo attributes from listpoints to data
+      listpt <- data.table::fread(file.path(wpath,"listpoints.txt"))
+      new_names <- names(listpt)
+      new_names[2]  <- "IDpoint"
+      data.table::setnames(x = listpt, old = names(listpt), new = new_names)
+      dplyr::left_join(data, listpt, by= "IDpoint", copy=TRUE)
+    }
     
     return(data)
 }
