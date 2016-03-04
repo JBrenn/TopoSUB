@@ -66,7 +66,7 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
 
     }
     
-    print("postprocess read data")
+    print(paste("postprocess of read data from key: ", i, sep=""))
     
     # remove [] / - from data names
     data.table::setnames(x = data[[i]],old = names(data[[i]]),
@@ -109,8 +109,8 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
     if (i=="SoilAveragedTempProfileFileWriteEnd")
     {
       # change col names
-      data.table::setnames(x = data[[i]],old = names(data[[i]]),
-               new = c(names(data[[i]])[1:2], paste("SoilT", as.integer(names(data[[i]])[-c(1:2)]), sep="_")) )
+      data.table::setnames(x = data[[i]], old = names(data[[i]]),
+                           new = c(names(data[[i]])[1:2], paste("SoilT", as.integer(select[[i]][-c(1:2)]), sep="_")) )
       
       # convert last col to numeric
       set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) )
@@ -119,10 +119,11 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
     
     if (i=="SoilLiqContentProfileFileWriteEnd")
     {
-      data.table::setnames(x = data[[i]],old = names(data[[i]]),
-               new = c(names(data[[i]])[1:2], paste("SWC_liq", as.integer(names(data[[i]])[-c(1:2)]), sep="_")) )
       
-      set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) )
+      data.table::setnames(x = data[[i]], old = names(data[[i]]),
+                           new = c(names(data[[i]])[1:2], paste("SWC_liq", as.integer(select[[i]][-c(1:2)]), sep="_")) )
+      
+      data.table::set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) )
       
       # calculate drought days / drought statistics (see Shefield 2008)
       # monthly edcf of smc (for control/current state 1970 - 2000)
@@ -132,14 +133,32 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
     
     if (i=="SoilIceContentProfileFileWriteEnd")
     {
-      data.table::setnames(x = data[[i]],old = names(data[[i]]),
-               new = c(names(data[[i]])[1:2], paste("SWC_ice", as.integer(names(data[[i]])[-c(1:2)]), sep="_")) )
+      data.table::setnames(x = data[[i]], old = names(data[[i]]),
+                           new = c(names(data[[i]])[1:2], paste("SWC_ice", as.integer(select[[i]][-c(1:2)]), sep="_")) )
       
-      set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) )
+      data.table::set( x = data[[i]], j = length(data[[i]]), value = as.numeric(data[[i]][[length(data[[i]])]]) )
     }
 
   }
   
+  # calculate total soil moisture from LIQ and ICE
+  if (any(names(data)=="SoilLiqContentProfileFileWriteEnd") & any(names(data)=="SoilIceContentProfileFileWriteEnd"))
+  {
+    # liq + ice 
+    data[["SoilWaterContentProfileFileWriteEnd"]] <- 
+      data[["SoilLiqContentProfileFileWriteEnd"]][,3:length(data[["SoilLiqContentProfileFileWriteEnd"]]),with=FALSE] + 
+      data[["SoilIceContentProfileFileWriteEnd"]][,3:length(data[["SoilIceContentProfileFileWriteEnd"]]),with=FALSE]
+    data[["SoilWaterContentProfileFileWriteEnd"]][,c("Date12_DDMMYYYYhhmm_","IDpoint") := list(data[["SoilLiqContentProfileFileWriteEnd"]]$Date12_DDMMYYYYhhmm_, data[["SoilLiqContentProfileFileWriteEnd"]]$IDpoint)]
+    
+    setcolorder(data[["SoilWaterContentProfileFileWriteEnd"]], names(data[["SoilLiqContentProfileFileWriteEnd"]]))
+    
+    # rename
+    data.table::setnames(x = data[["SoilWaterContentProfileFileWriteEnd"]], old = names(data[["SoilWaterContentProfileFileWriteEnd"]]),
+                         new = c(names(data[["SoilWaterContentProfileFileWriteEnd"]])[1:2], 
+                                 paste("SWC_total", as.integer(select[["SoilLiqContentProfileFileWriteEnd"]][-c(1:2)]), sep="_")) )
+    keys <- c(keys, "SoilWaterContentProfileFileWriteEnd")
+  }
+      
   if (length(keys)==1) {
     data <- data[[1]]
   } else {
