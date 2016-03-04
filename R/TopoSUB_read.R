@@ -142,7 +142,7 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
   }
   
   # calculate total soil moisture from LIQ and ICE
-  if (any(names(data)=="SoilLiqContentProfileFileWriteEnd") & any(names(data)=="SoilIceContentProfileFileWriteEnd"))
+  if (any(keys=="SoilLiqContentProfileFileWriteEnd") & any(keys=="SoilIceContentProfileFileWriteEnd"))
   {
     # liq + ice 
     data[["SoilWaterContentProfileFileWriteEnd"]] <- 
@@ -164,12 +164,12 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
   } else {
     data_join <- data[[1]]
     for (i in 2:length(keys)) {
-      data_join <- dplyr::left_join(x = data_join, y = data[[i]], 
+      data_join <- dplyr::left_join(x = data_join, y = data[[i]],
                                     by = c("Date12_DDMMYYYYhhmm_", "IDpoint"))
       #data_join <- data_join[data[[i]]]
-      data <- data_join
     }
-    
+    data <- data_join
+  }
     # get POSIX datetime
     data.table::setnames(x = data, old = names(data), new = c("Date",names(data)[-1]))
     
@@ -185,7 +185,8 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
     #data[, "datetime" := fasttime::fastPOSIXct(x=datetime, required.components=3)]
     data[, "Date" := as.Date(x=Date, format="%d/%m/%Y")]
     
+    # order data
+    data[order(Date),]
+    
     return(data)
-  }
-  
 }
