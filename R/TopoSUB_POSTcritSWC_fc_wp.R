@@ -1,4 +1,4 @@
-TopoSUB_POSTcritSWC_fc_wp <- function(data, dry_thres = 30)
+TopoSUB_POSTcritSWC_fc_wp <- function(data, dry_thres = 30, variable)
 {
   # get topo attributes from listpoints
   listpt <- data.table::fread(file.path(wpath,"listpoints.txt"))

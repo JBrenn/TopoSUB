@@ -52,7 +52,7 @@
       
       # do postprocessing 
       if(postprocess["method"]=="critSWC_fc_wp")
-        TopoSUB_POSTcritSWC_fc_wp(data = data_per, dry_thres = as.integer(postprocess["dry_thres"]))
+        TopoSUB_POSTcritSWC_fc_wp(data = data_per, dry_thres = as.integer(postprocess["dry_thres"]), variable = variable)
       
       # yearly mean/sums
       data_per_y <- aggregate(data_per, years(time(data_per)), periods_aggr$fun)
