@@ -35,6 +35,6 @@ A TopoSUB simulation is started with the function TopoSUB_preprocessor. After pr
 * TopoSUB_spread: speading the output data table of the function above for a specific variable
 * TopoSUB_remap: maping of the spreaded output for different time/climatic periods and/or differences of time/climatic periods
 
-An example simulation for the Montatschinig/Montecini region (LTER Matsch/Mazia) can be found [here](). Use this example to create an TopoSUB-GEOtop simulation folder. See also the files locations.txt and setup.txt for parmeters defining your simulation properties, e.g. input/output folders, number of cluster centroids, switches, definitions for running the simulation on a HPC cluster, ...
+An example simulation for the Montatschinig/Montecini region (LTER Matsch/Mazia) can be found [here](). Use this example as a template to create an TopoSUB-GEOtop simulation folder. See also the files locations.txt and setup.txt for parmeters defining your simulation properties, e.g. input/output folders, number of cluster centroids, switches, definitions for running the simulation on a HPC cluster, ...
 
-Moreover, the package includes an easy to use shiny app. Run in the simulation folder it visualises the finally produced maps (still Beta-version). 
+Moreover, the package includes an easy to use shiny app. Run in the simulation folder it visualises the finally produced maps (still Beta-version, see folder _shiny_).
