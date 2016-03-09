@@ -50,10 +50,9 @@
       # window zoo object
       data_per <- window(x = data_spread_zoo, start = start_day, end = end_day)
       
-      #       if(!is.null(postprocess))
-      #       {
-      #         # doing postprocessing on variable
-      #       }
+      # do postprocessing 
+      if(postprocess=="critSWC_fc_wp")
+        TopoSUB_POSTcritSWC_fc_wp(data = data_per, dry_thres = )
       
       # yearly mean/sums
       data_per_y <- aggregate(data_per, years(time(data_per)), periods_aggr$fun)
@@ -169,7 +168,10 @@
       for (i in names(maps_sub_all))
         crs(maps_sub_all[[i]]) <- coords
       
-    dir.create(file.path(wpath, "OUTperiods"), recursive = T)    
+    dir.create(file.path(wpath, "OUTperiods"), recursive = T)   
+    
+  # change variable name if postprocessing
+    variable <- paste(variable, postprocess, sep="_")
   
   # write raster .tif  
     lapply(names(maps_sub_all), function(x) {
