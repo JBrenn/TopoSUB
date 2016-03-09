@@ -32,6 +32,11 @@
   # spread data by IDpoints
   data_spread_zoo <- TopoSUB_spreadVAR(data=data, var=variable, do.zoo = TRUE)
   
+  # do postprocessing 
+  if(postprocess["method"]=="critSWC_fc_wp")
+    data_spread_zoo <- TopoSUB_POSTcritSWC_fc_wp(data = data_spread_zoo, dry_thres = as.integer(postprocess["dry_thres"]), 
+                                          variable = variable, wpath = wpath)
+  
   # yearly mean/sums
   data_spread_zoo_y <- aggregate(data_spread_zoo, years(time(data_spread_zoo)), periods_aggr$fun)
   
@@ -49,10 +54,6 @@
       
       # window zoo object
       data_per <- window(x = data_spread_zoo, start = start_day, end = end_day)
-      
-      # do postprocessing 
-      if(postprocess["method"]=="critSWC_fc_wp")
-        TopoSUB_POSTcritSWC_fc_wp(data = data_per, dry_thres = as.integer(postprocess["dry_thres"]), variable = variable)
       
       # yearly mean/sums
       data_per_y <- aggregate(data_per, years(time(data_per)), periods_aggr$fun)
