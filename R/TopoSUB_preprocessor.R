@@ -18,7 +18,7 @@
 TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setup.txt", 
                                   PredNamesList=list(topo=c("dem", "slp", "svf"),
                                                       clas=c("landcover", "soil")),
-                                  mode_ls="ols")
+                                  mode_ls="ols", uniform_class = c(landcover=NULL, soil=NULL))
 {
   #load libs raster and geotopbricks (shouldn't be loaded in function but installed/sourced before!)
   # no more necessary when package toposub is used
@@ -283,6 +283,12 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
     lsp$svf[which(lsp$svf == -1)] <- 1
   
   names(lsp) <- c("members", "id", names(samp_mean)[-1], "asp")
+  
+  if (!is.null(uniform_class[["landcover"]]))
+    lsp$landcover <- uniform_class[["landcover"]]
+  
+  if (!is.null(uniform_class[["soil"]]))
+    lsp$soil <- uniform_class[["soil"]]
     
   write.table(lsp,paste(esPath, '/listpoints.txt' ,sep=''), sep=',', row.names=FALSE, quote=FALSE)
     #make horizon files
