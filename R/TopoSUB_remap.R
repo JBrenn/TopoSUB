@@ -10,7 +10,7 @@
                            periods=list(baseline=c(1980,2010), per1=c(2020,2050), per2=c(2045,2075), per3=c(2070,2100)),
                            periods_aggr = list(aggr=c("season", "veg_period"), fun="mean", diff = c("absolute","percentage")),
                            sequence = list(period=c(1980,2010), aggr=c("year","season","month")),
-                           postprocess = NULL,
+                           postprocess = c(method=NULL),
                            coords = "+proj=utm +zone=32 ellps=WGS84")
 {
   
@@ -50,10 +50,9 @@
       # window zoo object
       data_per <- window(x = data_spread_zoo, start = start_day, end = end_day)
       
-      #       if(!is.null(postprocess))
-      #       {
-      #         # doing postprocessing on variable
-      #       }
+      # do postprocessing 
+      if(postprocess["method"]=="critSWC_fc_wp")
+        TopoSUB_POSTcritSWC_fc_wp(data = data_per, dry_thres = as.integer(postprocess["dry_thres"]))
       
       # yearly mean/sums
       data_per_y <- aggregate(data_per, years(time(data_per)), periods_aggr$fun)
@@ -169,7 +168,10 @@
       for (i in names(maps_sub_all))
         crs(maps_sub_all[[i]]) <- coords
       
-    dir.create(file.path(wpath, "OUTperiods"), recursive = T)    
+    dir.create(file.path(wpath, "OUTperiods"), recursive = T)   
+    
+  # change variable name if postprocessing
+    variable <- paste(variable, postprocess, sep="_")
   
   # write raster .tif  
     lapply(names(maps_sub_all), function(x) {
