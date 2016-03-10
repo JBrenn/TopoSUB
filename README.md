@@ -6,7 +6,7 @@ R package for landscape clustering and land-surface modelling
 * postprocessing (read output, mapping)
 * data analysis (specific variable postprocessing, e.g. drought indices)
 
-TopoSUB is a R project for sampling the most important  aspects of land surface heterogeneity through a lumped scheme, allowing for the application of numerical land surface models (LSMs), like e.g. [GEOtop](https://github.com/skyglobe/geotop), over large areas in mountain regions or other heterogeneous environments (Fiddes et al. 2012).
+TopoSUB is a R project for sampling the most important  aspects of land surface heterogeneity through a lumped scheme, allowing for the application of numerical land surface models (LSMs), like e.g. [GEOtop](https://github.com/geotopmodel), over large areas in mountain regions or other heterogeneous environments (Fiddes et al. 2012). The project was initiated by [Joel Fiddes](http://www.wsl.ch/info/mitarbeitende/suche/index_EN/?search_name=Joel%20Caduff-Fiddes), the source code is available via the [toposub GitHub repository](https://github.com/joelfiddes/toposub).
 
 #### Reference
 Fiddes, J., & Gruber, S. (2012). TopoSUB: A tool for efficient large area numerical modelling in complex topography at sub-grid scales. Geoscientific Model Development, 5(5), 1245–1257. [DOI: 10.5194/gmd-5-1245-2012](http://doi.org/10.5194/gmd-5-1245-2012)
