@@ -33,9 +33,12 @@
   data_spread_zoo <- TopoSUB_spreadVAR(data=data, var=variable, do.zoo = TRUE)
   
   # do postprocessing 
-  if(postprocess["method"]=="critSWC_fc_wp")
-    data_spread_zoo <- TopoSUB_POSTcritSWC_fc_wp(data = data_spread_zoo, dry_thres = as.integer(postprocess["dry_thres"]), 
-                                          variable = variable, wpath = wpath)
+  if(!is.null(postprocess["method"]))
+  {
+    if(postprocess["method"]=="critSWC_fc_wp")
+      data_spread_zoo <- TopoSUB_POSTcritSWC_fc_wp(data = data_spread_zoo, dry_thres = as.integer(postprocess["dry_thres"]), 
+                                                   variable = variable, wpath = wpath)
+  }
   
   # yearly mean/sums
   data_spread_zoo_y <- aggregate(data_spread_zoo, years(time(data_spread_zoo)), periods_aggr$fun)
