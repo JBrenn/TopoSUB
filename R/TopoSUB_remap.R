@@ -33,7 +33,7 @@
   data_spread_zoo <- TopoSUB_spreadVAR(data=data, var=variable, do.zoo = TRUE)
   
   # do postprocessing 
-  if(!is.null(postprocess["method"]))
+  if(!is.na(postprocess["method"]))
   {
     if(postprocess["method"]=="critSWC_fc_wp")
       data_spread_zoo <- TopoSUB_POSTcritSWC_fc_wp(data = data_spread_zoo, dry_thres = as.integer(postprocess["dry_thres"]), 
