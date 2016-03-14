@@ -120,7 +120,8 @@
       {
         df <- data4periods[[i]]
         df_names <- names(df)
-        df$IDpoint <- as.integer(rownames(df))
+        df$IDpoint <- 1:length(rownames(df))
+        #df$IDpoint <- as.integer(rownames(df))
         
         map_rst <- sapply(X = df_names, FUN = function(x, landf=landform, y=df, by="IDpoint") {
           df <- df[,c("IDpoint", x)]
@@ -139,7 +140,8 @@
           df <- data4periods[[i]] - data4periods[["baseline"]]
           df <- df[,grepl(".fun", names(df))]
           df_names <- names(df)
-          df$IDpoint <- as.integer(rownames(df))
+          df$IDpoint <- 1:length(rownames(df))
+          #df$IDpoint <- as.integer(rownames(df))
           
           map_rst <- sapply(X = df_names, FUN = function(x, landf=landform, y=df, by="IDpoint") {
             df <- df[,c("IDpoint", x)]
@@ -155,7 +157,8 @@
           df <- (data4periods[[i]] - data4periods[["baseline"]]) /  data4periods[["baseline"]] *100
           df <- df[,grepl(".fun", names(df))]
           df_names <- names(df)
-          df$IDpoint <- as.integer(rownames(df))
+          df$IDpoint <- 1:length(rownames(df))
+          #df$IDpoint <- as.integer(rownames(df))
           
           map_rst <- sapply(X = df_names, FUN = function(x, landf=landform, y=df, by="IDpoint") {
             df <- df[,c("IDpoint", x)]
@@ -175,7 +178,8 @@
     dir.create(file.path(wpath, "OUTperiods"), recursive = T)   
     
   # change variable name if postprocessing
-    variable <- paste(variable, postprocess, sep="_")
+    if (!is.na(postprocess["method"]))
+      variable <- paste(variable, postprocess["method"], sep="_")
   
   # write raster .tif  
     lapply(names(maps_sub_all), function(x) {
