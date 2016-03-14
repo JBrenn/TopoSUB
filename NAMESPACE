@@ -13,6 +13,7 @@ import(tidyr)
 import(data.table)
 import(stringr)
 import(parallel)
+import(RSQLite)
 
 # Export all names
 exportPattern(".")
