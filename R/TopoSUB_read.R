@@ -200,8 +200,10 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
     
     if (write_sqlite)
     {
+      df <- as.data.frame(data)
+      
       db <- RSQLite::dbConnect(drv = SQLite(), dbname = file.path(wpath,"sim_out.sqlite"))
-        RSQLite::dbWriteTable(conn = db, name = "raw", value = data, row.names = NA, overwrite = TRUE, append = FALSE,
+        RSQLite::dbWriteTable(conn = db, name = "raw", value = df, row.names = NA, overwrite = TRUE, append = FALSE,
                               field.types = NULL)
       RSQLite::dbDisconnect(db)
     }
