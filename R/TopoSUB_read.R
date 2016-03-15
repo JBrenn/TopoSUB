@@ -85,21 +85,8 @@ TopoSUB_read <- function(wpath, keys = c("PointOutputFileWriteEnd","SoilLiqConte
       #with library(AnalyseGeotop)
       if (doLEHcalc)
       {
-        LE <- data[[i]][,c("LEg_veg_W_m2_", "LEg_unveg_W_m2_", "LEv_W_m2_", "Canopy_fraction___"), with=FALSE]
-        data.table::setnames(LE,old = names(LE),new = c("g_veg","g_unveg","veg","cf"))
-        H <- data[[i]][,c("Hg_veg_W_m2_", "Hg_unveg_W_m2_", "Hv_W_m2_", "Canopy_fraction___"), with=FALSE]
-        data.table::setnames(H,old = names(H),new = c("g_veg","g_unveg","veg","cf"))
-        heat_data <- list(LE=LE, H=H)
-        
-        #over_canopy <- AnalyseGeotop::GEOtop_EfluxOcanopy(heat_data)
-        
-        over_canopy <- list()
-        
-        for (i in names(data)) 
-          over_canopy[[i]] <- data[[i]]$cf * (data[[i]]$g_veg + data[[i]]$veg) + (1-data[[i]]$cf) * data[[i]]$g_unveg
-        
-        data[[i]][,LE_over_canopy_W_m2_:=over_canopy$LE]
-        data[[i]][,H_over_canopy_W_m2_:=over_canopy$H]
+        data[[i]][,LE_over_canopy_W_m2_:=Canopy_fraction___*(LEg_veg_W_m2_+LEv_W_m2_)+(1-Canopy_fraction___)*LEg_unveg_W_m2_]
+        data[[i]][,H_over_canopy_W_m2_:=Canopy_fraction___*(Hg_veg_W_m2_+Hv_W_m2_)+(1-Canopy_fraction___)*Hg_unveg_W_m2_]
       }
       
       # calculate snow cover days
