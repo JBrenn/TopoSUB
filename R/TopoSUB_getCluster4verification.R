@@ -1,5 +1,5 @@
 # function to retrieve representative cluster centroid for each obs station
-TopoSUB_getCluster4verification(wpath)
+TopoSUB_getCluster4verification <- function(wpath)
 {
   # get obs station meta data
   meta_data <- read.csv(file.path(wpath,"obs/meta.csv"))
