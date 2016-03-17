@@ -5,7 +5,9 @@ TopoSUB_verificationData <- function(wpath, station, variable, meta_data)
   
   if (grepl("SWC",variable)) {
     split <- strsplit(variable, "_") 
-    variable_sim <- paste(split[[1]][1], "total", as.integer(substr(split[[1]][2],2,nchar(split[[1]][2])))*10, sep="_")
+    depth_ <- which(grepl("z",split[[1]]))
+    depth  <- as.integer(substr(split[[1]][depth_],2,nchar(split[[1]][depth_])))*10
+    variable_sim <- paste(split[[1]][1], "total", depth, sep="_")
   } else {
     variable_sim <- variable
   }
