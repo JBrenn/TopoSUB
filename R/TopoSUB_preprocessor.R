@@ -538,8 +538,11 @@ if (run_lsm)
         
         # run jobs on VSC
         if(run_jobs) {
-          system(command = paste("cd", parallelPath, sep=" "))
-          for (i in 1:Ncores) system(command = paste("qsub job", i, ".sh", sep=""))
+          #system(command = paste("cd", parallelPath, sep=" "))
+          for (i in 1:Ncores) {
+            system(command = paste("chmod +x",  file.path(parallelPath, paste("job", i, ".sh", sep=""))))
+            system(command = paste("qsub",  file.path(parallelPath, paste("job", i, ".sh", sep=""))))
+          } 
         }
         
       }
