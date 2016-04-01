@@ -111,6 +111,11 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
       print("GEOtop inpts file does not exist")
     }
 	
+  if (exists("obs.folder")){
+    print("copy observation files to sim folder")
+    file.copy(file.path(eroot_loc1, obs.folder), esPath , recursive=TRUE, overwrite=TRUE)
+  }
+  
 	if (exists("pred.folder")){
 		print("copy predictor maps to sim folder")
 		file.copy(file.path(eroot_loc1, pred.folder), esPath , recursive=TRUE, overwrite=TRUE)
