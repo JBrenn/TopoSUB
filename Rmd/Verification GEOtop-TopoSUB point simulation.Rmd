@@ -1,0 +1,172 @@
+---
+title: "Verification GEOtop-TopoSUB point simulation"
+author: "JBr"
+date: "15 März 2016"
+output: html_document
+runtime: shiny
+---
+
+***
+
+This R Markdown document is made interactive using Shiny. To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
+
+***
+
+```{r, include=FALSE}
+
+if(!require("TopoSUB"))
+{
+  if(!require("devtools"))
+  {
+    install.packages("devtools")
+    require("devtools")
+  }
+  install_github("TopoSUB", "JBrenn")
+  require("TopoSUB")
+}
+
+if(!require("dygraphs"))
+{
+  install.packages("dygraphs")
+  require("dygraphs")
+}
+
+if(!require("hydroGOF"))
+{
+  install.packages("hydroGOF")
+  require("hydroGOF")
+}
+
+if(!require("ggplot2"))
+{
+  install.packages("ggplot2")
+  require("ggplot2")
+}
+
+if(!require("leaflet"))
+{
+  install.packages("leaflet")
+  require("leaflet")
+}
+
+if(!require("raster"))
+{
+  install.packages("leaflet")
+  require("raster")
+}
+
+#wpath <- "/run/user/1000/gvfs/smb-share:server=sdcalp01.eurac.edu,share=data2/Simulations/Simulation_GEOtop_1_225_ZH/Vinschgau/SimTraining/BrJ/Mazia/toposub/sim/1d/1d_002/000000/"
+wpath <- "/home/jbr/Schreibtisch/test_sim/"
+
+
+```
+
+#### Mapping Observation Stations
+
+```{r, echo=FALSE}
+
+# read meta data
+meta_data <- TopoSUB_getCluster4verification(wpath)
+
+renderLeaflet({
+  
+  # simulation domain - landform file
+  landform_asc <- dir(wpath)[grepl("landform", dir(wpath))]
+  landform_rst <- raster(file.path(wpath, landform_asc))
+  
+  #landform_rst[landform_rst==landform_rst[1]] <- NA
+    # reclass to NA values
+  landform_rst <- reclassify(landform_rst, cbind(landform_rst[1], NA))
+    # project
+  crs(landform_rst) <- CRS("+proj=utm +zone=32 ellps=WGS84")
+  
+  col <- grey.colors(n = length(meta_data$lng), start=.25, end=.25)
+  colIT <- which(meta_data$name==input$station)
+  col[colIT] <- "#bd0026"
+  
+  rad <- rep(5, length(meta_data$lng))
+  rad[colIT] <- 10
+  
+  leaflet() %>%
+   addProviderTiles("Acetate.terrain") %>%
+   addTiles(options = providerTileOptions(opacity = 0.75)) %>%  # Add default OpenStreetMap map tiles
+   addRasterImage(landform_rst, opacity = 0.35) %>%
+   addCircleMarkers(lng=meta_data$lng, lat=meta_data$lat, popup=paste(meta_data$name, ", ",  meta_data$h, "m a.s.l"), color = col, radius=rad, fill = F)
+  })
+
+
+```
+
+***
+
+```{r, echo=FALSE}
+
+inputPanel(    
+    selectInput(inputId = "station", label = "discover station", choices = as.character(meta_data$name), selected = "I1")
+    )
+
+var2select <- reactive({
+  x = readLines(file.path(wpath,"obs",paste(input$station,".csv",sep="")), n=1)
+  return(unlist(strsplit(x, ","))[-1])
+})
+  
+renderUI(   
+  selectInput(inputId = "variable", label = "discover variable", choices = var2select()))
+
+```
+
+***
+
+#### Time Series Plot
+
+
+```{r, echo=FALSE}
+
+renderDygraph({
+  
+    data2plot <- TopoSUB_verificationData(wpath, input$station, input$variable, meta_data)
+    
+    dygraph(data2plot) %>%
+      dyRangeSelector() %>%
+      dyRoller() 
+  
+#    %>%
+#      dySeries(name = "additional var", axis = "y2", stepPlot = TRUE, fillGraph = TRUE, label = #paste("[-",add_units,"]",sep=""))
+    
+#  }
+ 
+})
+
+```
+
+***
+
+####Summary Table on Goodness of Fit (GOF)
+
+```{r, echo=FALSE}
+
+renderDataTable({
+  
+  data2plot <- TopoSUB_verificationData(wpath, input$station, input$variable, meta_data)
+    
+  gofs <- gof(sim = data2plot$Simulation, obs=data2plot$Observation, na.rm = T)
+  gofs <- as.data.frame(gofs)
+  names(gofs) <- "YEAR"
+  gofs$GOF <- dimnames(gofs)[[1]]
+  
+  mon <- as.numeric(format(time(data2plot), "%m"))
+  
+  datadjf <-  data2plot[mon==12 | mon==1 | mon==2,]
+  gofs$DJF <-  c(gof(sim = datadjf$Simulation, obs=datadjf$Observation, na.rm = T))
+  datamam <-  data2plot[mon==3 | mon==4 | mon==5,]
+  gofs$MAM <-  c(gof(sim = datamam$Simulation, obs=datamam$Observation, na.rm = T))
+  datajja <-  data2plot[mon==6 | mon==7 | mon==8,]
+  gofs$JJA <-  c(gof(sim = datajja$Simulation, obs=datajja$Observation, na.rm = T))
+  datason <-  data2plot[mon==9 | mon==10 | mon==11,]
+  gofs$SON <-  c(gof(sim = datason$Simulation, obs=datason$Observation, na.rm = T))
+  
+  gofs <- gofs[,c(2,3,4,5,6,1)]
+ 
+}, options = list(pageLength=5, lengthMenu=c(5, 10, 15, 20)))
+
+```
