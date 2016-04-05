@@ -1,8 +1,11 @@
 # function to retrieve representative cluster centroid for each obs station
 TopoSUB_getCluster4verification <- function(wpath)
 {
-  # get obs station meta data
+  # reading obs station meta data
   meta_data <- read.csv(file.path(wpath,"obs/meta.csv"))
+  
+  # reading listpoint data
+  listpoint_data <- read.csv(file.path(wpath,"listpoints.txt"))
   
   # reading landform raster data 
   files_wpath <- dir(wpath)
@@ -14,9 +17,8 @@ TopoSUB_getCluster4verification <- function(wpath)
   #? how to get representative cluster centroid
   meta_data$cluster_centroids <- raster::extract(landform_rst, meta_data[,c("x","y")])
   
-  # get representative cluster centroids for each obs station
-  # obs station name
-  # representative cluster centroid / IDpoint
+  # join listpoint data
+  meta_data <- merge.data.frame(meta_data, listpoint_data, by.x = "cluster_centroids", by.y = "id")
   
   return(meta_data)
 }
