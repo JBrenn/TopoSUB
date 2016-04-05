@@ -19,6 +19,7 @@ TopoSUB_getCluster4verification <- function(wpath)
   
   # join listpoint data
   meta_data <- merge.data.frame(meta_data, listpoint_data, by.x = "cluster_centroids", by.y = "id")
+  meta_data <- meta_data[order(meta_data$OID),]
   
   return(meta_data)
 }
