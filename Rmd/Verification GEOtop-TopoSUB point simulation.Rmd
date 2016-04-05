@@ -117,6 +117,21 @@ renderUI(
 
 ***
 
+####Table on Station Meta Data
+
+```{r, echo=FALSE}
+
+renderDataTable({
+
+meta_data$Deltah <- meta_data$h - meta_data$dem    
+meta_data[,c(2,3,19,1,10:15,18)]
+ 
+}, options = list(pageLength=5, lengthMenu=c(5, 10, 15, 20)))
+
+```
+
+***
+
 #### Time Series Plot
 
 
@@ -170,3 +185,4 @@ renderDataTable({
 }, options = list(pageLength=5, lengthMenu=c(5, 10, 15, 20)))
 
 ```
+
