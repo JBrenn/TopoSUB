@@ -289,11 +289,11 @@ TopoSUB_preprocessor <- function(location.file="locations.txt", setup.file="setu
   
   names(lsp) <- c("members", "id", names(samp_mean)[-1], "asp")
   
-  if (!is.null(uniform_class[["landcover"]]))
-    lsp$landcover <- uniform_class[["landcover"]]
+  if (!is.null(uniform_class["landcover"]))
+    lsp$landcover <- uniform_class["landcover"]
   
-  if (!is.null(uniform_class[["soil"]]))
-    lsp$soil <- uniform_class[["soil"]]
+  if (!is.null(uniform_class["soil"]))
+    lsp$soil <- uniform_class["soil"]
     
   write.table(lsp,paste(esPath, '/listpoints.txt' ,sep=''), sep=',', row.names=FALSE, quote=FALSE)
     #make horizon files
