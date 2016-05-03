@@ -22,3 +22,6 @@ Imports:
     stringr,
     parallel,
     RSQLite
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

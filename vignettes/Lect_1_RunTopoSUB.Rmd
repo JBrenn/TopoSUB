@@ -1,0 +1,114 @@
+---
+title: 'Lect 3: How to Run TopoSUB'
+author: "Johannes Brenner"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Lect 1 RunTopoSUB}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Install R-library TopoSUB
+
+The R-library TopoSUB is a [GitHub repository](https://github.com/JBrenn/TopoSUB) which can be installed via [devtools](https://www.rstudio.com/products/rpackages/devtools/) in R. The following R snippet will install/load devtools and TopoSUB if neccessary.
+
+```{r libraries, eval=FALSE}
+
+if(!require(TopoSUB))
+{
+  if(!require("devtools"))
+  {
+    install.packages(devtools)
+    require("devtools")
+  }
+  install_github("TopoSUB", "JBrenn")
+  require("TopoSUB")
+}
+
+```
+
+## TopoSUB simulation folder
+
+A TopoSUB simulation folder exists of
+
+* two TopoSUB configuration files, _locations.txt_ and _setup.txt_, 
+
+* the master folder, containing GEOtop input data (input maps, meteo, horizon, soil files), the GEOtop configuration file (_geotop.inpts_) and eventually a folder called _obs_ with observed data,
+
+* the src folder contains additional TopoSUB functions, which are not included in the library. This folder is part of the TopoSUB repository on GitHub and can either be downloaded or cloned:
+
+```{r, engine='bash', eval=FALSE}
+git clone https://github.com/JBrenn/TopoSUB
+```
+
+For clarification on the folder structure a TopoSUB example simulation can be found [here](https://cloud.scientificnet.org/index.php/s/Y6UwKt79pFZp2uR).
+    
+The directory of these files/folders is the root directory, defined in the location configuration file. The folder names of all necessary input files have to be specified in the location configuration file. The parameters _1d folder_ and _experiment number_ will define the simulation output path. The _1d folder_ can be seen as an project folder, where different simulations of a project are stored. 
+
+As the first intension of this extended version of TopoSUB were simulation runs for climate impact assessments with continuous input data up to 140 years, parallelisation is implemented either for your local machine (see example simulation) or a HPC cluster (e.g. Vienna Scientific Cluster - VSC). In the example simulation 256 point simulations are splited into 8 branches (Number of simulations in parallel mode in setup configuration file), where each branch exists of 32 point simulations, computes 32 cluster centroids. For the VSC a number of job files (specified by _Ncores_) can be created and run directly from R. For further info on the VSC see its [wiki page](https://wiki.vsc.ac.at/doku.php?id=start). 
+
+ 
+## Run TopoSUB
+
+A TopoSUB simulation is started with the function TopoSUB_preprocessor. After preparing GEOtop input files (raster maps, meteorological stations, horizon files, ...), the GEOtop configurationfile (geotop.inpts) and the TopoSUB configuration files (locations.txt, setup.txt), use this function to carry out landscape clustering and GEOtop point simulations, for computational intensive simulations preferable parallelized on a HPC server. See the function documentation for a short description.
+
+```{r help_pre, eval=FALSE}
+
+?TopoSUB_preprocessor
+
+```
+
+For the example simulation we can run the R-script main_pre.R as following in a Linux terminal
+
+```{r, engine='bash', eval=FALSE}
+Rscript main_pre.R & > log/sim1.log
+```
+
+Let's take a look at the commands it is processing
+
+```{r main_pre, eval=FALSE}
+
+# install/source TopoSUB library
+# see R block above
+
+#  source code of TopoSUB (download from TopoSUB GitHub repo)
+  source("src/toposub_src.r")
+  source("src/toposub_src_BrJ.r")
+
+# setup file
+  setupfile = "setup.txt"
+
+# location file
+  locationfile = "locations.txt"
+
+# topoSUB preprocessor
+  TopoSUB_preprocessor(location.file = locationfile, setup.file = setupfile,
+                       PredNamesList=list(topo=c("dem", "slp", "asp", "svf"),
+                                          clas=c("landcover", "soil")),
+                       uniform_class = c(landcover=NA, soil=NA))
+
+```
+
+First the additional TopoSUB functions are sourced, then we launch the preprocessor, with defined names for the location and setup configuration file. In _PredNamesList_ we define the predictors we want to use for clustering, these are splitted in continuous (e.g. elevation - dem) and discrete (e.g. land cover types - landcover) data. If we want to simulate only a single land cover or soil type over the whole study area we can change the argument uniform_class accordingly. The number of the listed argument refers to the number defining specific classes in the soil/land cover input maps.
+
+## TopoSUB Project folder | _1d folder_
+ 
+As explained above TopoSUB is orgnised in project directories, which can be found in the _sim_ folder. These are mainly meant to experiment with the configuration of TopoSUB itself, means that for each project the same master folder is used. If GEOtop specific parameterisations or input data is changed a new project should be started. The master folder is copyed once in the project folder, the simulations which were run within the project are written in a specific folder, called according to the _experiment number_, e.g. _00001_.
+
+## TopoSUB simulation folder | _experiment number_
+
+The main structure of a TopoSUB simulation folder is provided by the GEOtop configuration file _geotop.inpts_. If the simulation is run in parallel an extra folder _parallel_ is containing the simulation output files. The TopoSUB preprocessor is creating two files of particular importance
+
+* the _listpoint.txt file_ is describing the characteristics for each cluster centroid. It is read as input in GEOtop defining point simulation setups. 
+
+* the _landform .asc file_ is mapping the IDs of the cluster centroids for each grid cell of the simulation domain. This map is later on used for re-maping simulation variables (see Lect 2: How to Postprocess a TopoSUB sim).
+
+## Requirements
+
+* current installation of R (>3.0.0) and RStudio Desktop (>0.99)
+* [gdal](http://www.gdal.org/) and [proj4](https://github.com/OSGeo/proj.4)
