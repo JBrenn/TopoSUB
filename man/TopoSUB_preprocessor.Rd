@@ -4,7 +4,7 @@
 TopoSUB preprocessor: landscape clustering and GEOtop
 }
 \description{
-The TopoSUB preprocessor is clustering landscape features as topography, climate, land use and soil types in order to prvide input simulation points for the LSM GEOtop. Each cluster centroid is simulated in the model's one dimensional mode.
+The TopoSUB preprocessor is clustering landscape features as topography, climate, land use and soil types in order to prvide input simulation points for the LSM GEOtop. The LSM can be started with this function, define if in the setup configuration file. Each cluster centroid is simulated in the model's one dimensional mode.
 }
 \usage{
 TopoSUB_preprocessor(location.file="locations.txt", setup.file="setup.txt", 
