@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Johannes Brenner" />
+
+<meta name="date" content="2016-05-03" />
+
+<title>Lect 3: How to visualize TopoSUB maps</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Lect 3: How to visualize TopoSUB maps</h1>
+<h4 class="author"><em>Johannes Brenner</em></h4>
+<h4 class="date"><em>2016-05-03</em></h4>
+
+
+
+<div id="r-markdown" class="section level2">
+<h2>R Markdown</h2>
+<p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
+<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(cars)</code></pre></div>
+<pre><code>##      speed           dist       
+##  Min.   : 4.0   Min.   :  2.00  
+##  1st Qu.:12.0   1st Qu.: 26.00  
+##  Median :15.0   Median : 36.00  
+##  Mean   :15.4   Mean   : 42.98  
+##  3rd Qu.:19.0   3rd Qu.: 56.00  
+##  Max.   :25.0   Max.   :120.00</code></pre>
+</div>
+<div id="including-plots" class="section level2">
+<h2>Including Plots</h2>
+<p>You can also embed plots, for example:</p>
+<p><img src="data:image/png;base64,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" alt /><!-- --></p>
+<p>Note that the <code>echo = FALSE</code> parameter was added to the code chunk to prevent printing of the R code that generated the plot.</p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
