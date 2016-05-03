@@ -14,7 +14,7 @@
 
 <meta name="date" content="2016-05-03" />
 
-<title>Lect 3: How to visualize TopoSUB maps</title>
+<title>Lect 3: How to Visualize TopoSUB output</title>
 
 
 
@@ -68,30 +68,54 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<h1 class="title toc-ignore">Lect 3: How to visualize TopoSUB maps</h1>
+<h1 class="title toc-ignore">Lect 3: How to Visualize TopoSUB output</h1>
 <h4 class="author"><em>Johannes Brenner</em></h4>
 <h4 class="date"><em>2016-05-03</em></h4>
 
 
 
-<div id="r-markdown" class="section level2">
-<h2>R Markdown</h2>
-<p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
-<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(cars)</code></pre></div>
-<pre><code>##      speed           dist       
-##  Min.   : 4.0   Min.   :  2.00  
-##  1st Qu.:12.0   1st Qu.: 26.00  
-##  Median :15.0   Median : 36.00  
-##  Mean   :15.4   Mean   : 42.98  
-##  3rd Qu.:19.0   3rd Qu.: 56.00  
-##  Max.   :25.0   Max.   :120.00</code></pre>
+<div id="get-github-repository-toposub" class="section level2">
+<h2>Get GitHub Repository TopoSUB</h2>
+<p>Before starting download and unzip OR clone the <a href="https://github.com/JBrenn/TopoSUB">GitHub repository TopoSUB</a>:</p>
+<pre><code>git clone https://github.com/JBrenn/TopoSUB</code></pre>
+<p>Copy the files within the shiny folder (ui.R, server.R, runApp.R) in your TopoSUB simulation folder.</p>
 </div>
-<div id="including-plots" class="section level2">
-<h2>Including Plots</h2>
-<p>You can also embed plots, for example:</p>
-<p><img src="data:image/png;base64,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" alt /><!-- --></p>
-<p>Note that the <code>echo = FALSE</code> parameter was added to the code chunk to prevent printing of the R code that generated the plot.</p>
+<div id="dependencies" class="section level2">
+<h2>Dependencies</h2>
+<p>Before running the app make sure you have installed the following libraries</p>
+<ol style="list-style-type: decimal">
+<li><a href="https://cran.r-project.org/web/packages/data.table/index.html">data.table</a> an extension of data.frame - a table plug-in for jQuery,</li>
+<li><a href="https://blog.rstudio.org/2014/07/22/introducing-tidyr/">tidyr</a> makes it easy to “tidy” your data. Tidy data is data that’s easy to work with: it’s easy to munge (with dplyr), visualise (with ggplot2), …</li>
+<li><a href="https://blog.rstudio.org/2014/01/17/introducing-dplyr/">dplyr</a> providing a set of tools for efficiently manipulating datasets in R,</li>
+<li><a href="https://cran.r-project.org/web/packages/raster/index.html">raster</a> for Geographic Data Analysis and Modeling,</li>
+<li><a href="http://ggplot2.org/">ggplot2</a> ggplot2 is a plotting system for R, based on the grammar of graphics, which tries to take the good parts of base and lattice graphics and none of the bad parts,</li>
+<li><a href="http://leafletjs.com/">leaflet</a> is one of the most popular open-source JavaScript libraries for interactive maps,</li>
+<li><a href="http://shiny.rstudio.com/">shiny</a> a web application framework for R.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="kw">c</span>(<span class="st">&quot;data.table&quot;</span>,<span class="st">&quot;tidyr&quot;</span>,<span class="st">&quot;dplyr&quot;</span>,<span class="st">&quot;raster&quot;</span>,<span class="st">&quot;ggplot2&quot;</span>,<span class="st">&quot;leaflet&quot;</span>,<span class="st">&quot;shiny&quot;</span>))</code></pre></div>
+</div>
+<div id="running-the-shiny-application" class="section level2">
+<h2>Running the shiny application</h2>
+<p>Close RStudio, and double-click <em>runApp.R</em> (in the TopoSUB simulation folder). This should open the R script in RStudio with your TopoSUB simulation folder as a working directory. The working directory is written above the R console, you can also check with</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">getwd</span>()</code></pre></div>
+<p>Execute the whole script:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(shiny)
+<span class="kw">library</span>(leaflet)
+<span class="kw">library</span>(raster)
+<span class="kw">library</span>(data.table)
+<span class="kw">library</span>(tidyr)
+<span class="kw">library</span>(dplyr)
+<span class="kw">library</span>(ggplot2)
+
+<span class="kw">runApp</span>(<span class="kw">getwd</span>())</code></pre></div>
+<p>A browser window should open and show the shiny app interface. If your data is stored on a server reading map files is slow. You can improve speed by copying the simuation folder on your local machine.</p>
+</div>
+<div id="requirements" class="section level2">
+<h2>Requirements</h2>
+<ul>
+<li>current installation of R (&gt;3.0.0) and RStudio Desktop (&gt;0.99)</li>
+<li>TopoSUB simulation run (see Lect 1: How to Run TopoSUB) and postprocessing (see Lect 2: How to Postprocess a TopoSUB sim)</li>
+</ul>
 </div>
 
 
