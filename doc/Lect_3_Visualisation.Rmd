@@ -17,8 +17,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Before starting download and unzip OR clone the [GitHub repository TopoSUB](https://github.com/JBrenn/TopoSUB):
 
-    git clone https://github.com/JBrenn/TopoSUB
-    
+```{r, engine='bash', eval=FALSE}
+git clone https://github.com/JBrenn/TopoSUB
+```
+
 Copy the files within the shiny folder (ui.R, server.R, runApp.R) in your TopoSUB simulation folder.
 
 ## Dependencies
