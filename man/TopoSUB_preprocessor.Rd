@@ -8,8 +8,8 @@ The TopoSUB preprocessor is clustering landscape features as topography, climate
 }
 \usage{
 TopoSUB_preprocessor(location.file="locations.txt", setup.file="setup.txt", 
-                      PredNamesList=list(topo=c("dem"), clas=c("landuse", "soil")), mode_ls="ols", 
-                      run_lsm=FALSE, copy_master=FALSE,
+                      PredNamesList=list(topo=c("dem"), clas=c("landuse", "soil")), 
+                      mode_ls="ols", 
                       uniform_class = c(landcover=NULL, soil=NULL))
 }
 %- maybe also 'usage' for other objects documented here.
@@ -25,12 +25,6 @@ TopoSUB_preprocessor(location.file="locations.txt", setup.file="setup.txt",
 }
  \item{mode_ls}{
   mode of least square esimation, default "ols": ordinary least square
-}
- \item{run_lsm}{
-  boolean, default FALSE: execute function without running land surface model (GEOtop), TRUE running LSM
-}
- \item{copy_master}{
-  boolean, default FALSE: execute function without copying _master folder, TRUE copy _master folder
 }
   \item{uniform_class}{
   define uniform value for classes, e.g. one landcover/soil type class for the whole simulation domain, default c(landcover=NULL, soil=NULL) no uniform classes set.
