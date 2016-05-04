@@ -22,6 +22,9 @@ First install the package with:
 install.packages("devtools")
 library(devtools)
 install_github("JBrenn/TopoSUB")
+
+# with vignettes built
+install_github("JBrenn/TopoSUB", build_vignettes = TRUE)
 ```
 
 and then import the library with:
