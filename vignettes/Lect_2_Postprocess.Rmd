@@ -1,5 +1,5 @@
 ---
-title: 'Lect 2: How to Postprocess a TopoSUB sim'
+title: 'Lect 2: Postprocess a TopoSUB simulation'
 author: "Johannes Brenner"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -12,8 +12,6 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-### is TopoSUB R-packages installed and can be loaded?
 
 Before starting make sure that the [TopoSUB R-package](https://github.com/JBrenn/TopoSUB) is installed and can be loaded:
 
@@ -34,7 +32,7 @@ if(!require(TopoSUB))
 
 ## Main functions
 
-The main functions for TopoSUB postprocessing are reading and remaping the output variables of a TopoSUB simulation. Look at their descripton!
+The main functions for TopoSUB postprocessing are reading and re-maping the cluster centroids of the output variables of a TopoSUB simulation. Look at their descripton!
 
 ```{r help, eval=FALSE}
 
@@ -43,15 +41,15 @@ The main functions for TopoSUB postprocessing are reading and remaping the outpu
 
 ```
 
-1. **TopoSUB_read** is reading the TopoSUB simulation output data in a data.table, it is utilising the R-function data.table::fread for faster and more convenient reading of text files, for simulations run in parallel mode parallel reading of data is implemented. Some postprocessing is done for specific variables:
+1. **TopoSUB_read** is reading the TopoSUB simulation output data in a data.table, it is utilising the R-function _data.table::fread_ for faster and more convenient reading of text files compared to _read.table_, for simulations run in parallel mode parallel reading of data is implemented. Some postprocessing is done for specific variables:
 
-* calculation of total precipitation (Ptotal_mm_) from rain and snow components
-* calculation of evapotranspiration (Evaptranspiration_mm_) from transpiration and evaporation
-* calculation of latent and sensible heat over the canopy (LE_over_canopy_W_m2_, H_over_canopy_W_m2_)
-* identification of snow cover days (SnowCover_days_) defined by the threshold argument _SnowCoverThres_
-* calculation of total soil water content by adding liquid and ice soil water content for each soil layer (e.g. SWC_total_200 in 20cm soil depth)
+* calculation of total precipitation from rain and snow components,
+* calculation of evapotranspiration from transpiration and evaporation,
+* calculation of latent and sensible heat over the canopy (see function _TopoSUB_EfluxOcanopy_),
+* identification of snow cover days defined by the threshold argument _SnowCoverThres_,
+* calculation of total soil water content by adding liquid and ice soil water content for each soil layer.
 
-2. **TopoSUB_remap** is over-taking the data.table object (argument data) and is re-mapping variable vise (argument variable) according to the TopoSUB output map landform .asc. Variable names to use can be obtained by sourcing colnames from the TopoSUB package:
+2. **TopoSUB_remap** is taking over the data.table object (argument _data_) and is re-mapping variable vise (argument _variable_) according to the TopoSUB output map _landform .asc_. Variable names to use can be obtained by sourcing _colnames_ from the TopoSUB package:
 
 ```{r colnames, eval=FALSE}
 
@@ -62,13 +60,13 @@ View(colnames)
 
 The further arguments are a bit more complex and shortly described below:
 
-* **periods** is a list defining the periods which are compared, so minimum two time periods are to set, preferable climatic time frames (30 years). This is a named list, which first entry **baseline** is substracted from the other periods. Every period is aggregated over the whole time frame, the aggregation is defined in the argument
+* **periods** is a list defining the periods which are compared, at least two time periods Have to be set, preferable climatic time frames (30 years). This is a named list, which first entry **baseline** is substracted from the other periods. Every period is aggregated over the whole time frame, the aggregation is defined in the argument
 
-* **periods_aggr**, which is a named list of three entries: **aggr** defines the time aggregation, e.g. seasons (season), vegetation period (veg_period), by default there is always a aggregation for the whole year. **fun** defines the aggregation function, which is either the _mean_ or the _sum_ of the variable  over the aggragation period. **diff** defines if the _absolute_ or _percentage_ difference between the periods is assessed.
+* **periods_aggr**, which is a named list of three entries: **aggr** defines the time aggregation, e.g. seasons (_season_), vegetation period (_veg_period_), by default an aggregation over the whole year is always performed. **fun** defines the aggregation function, which is either the _mean_ or the _sum_ of the variable  over the aggragation period. **diff** defines if the _absolute_ or _percentage_ difference between the periods is computed.
 
 * **sequence** is meant to produce map animations over a specific time period. It's not implemented yet.
 
-* **postprocess** is defining a further postprocess step for specific variables, e.g. number of drought days calculated from soil water content, see function _TopoSUB_POSTcritSWC_fc_wp_. 
+* **postprocess** is defining a further postprocess step for specific variables, e.g. number of drought days calculated from soil water content, see function _TopoSUB_POSTcritSWC_fc_wp_. The character after POST is the keyword for the _method_, the first entry of the named vector, the following entries are extra arguments for the postprocess function.
 
 For clarification see the definitions of the arguments below:
 
@@ -105,24 +103,30 @@ postprocess = c(method="critSWC_fc_wp", dry_thres="30")
   
 # read location file
   locationfile = "locations.txt"
-  
   locations <- read.csv(locationfile, header = F, colClasses="character")
+  
+  # get parameter
   apply(X = locations[,c(2,3)], MARGIN = 1,
         FUN = function(x) assign(x = x[1], value = x[2], envir = .GlobalEnv) )
 
 # get sim path from location file
-  simpath <- file.path(root, sim, "1d", paste("1d_",exper1,sep=""), formatC(as.integer(es),0,6,flag = "0"))
+  simpath <- file.path(root, sim, "1d", paste("1d_",exper1,sep=""), 
+                       formatC(as.integer(es),0,6,flag = "0"))
   
 # define selection  argument  
   select <- list(PointOutputFileWriteEnd=c("Date12[DDMMYYYYhhmm]", "IDpoint", "Tair[C]", "Prain_over_canopy[mm]", "Psnow_over_canopy[mm]", "snow_water_equivalent[mm]", "Evap_surface[mm]", "Trasp_canopy[mm]", "Hv[W/m2]", "LEv[W/m2]", "Hg_unveg[W/m2]", "LEg_unveg[W/m2]", "Hg_veg[W/m2]", "LEg_veg[W/m2]", "Canopy_fraction[-]"), 
                  SoilLiqContentProfileFileWriteEnd=c("Date12[DDMMYYYYhhmm]", "IDpoint", "20.000000", "50.000000", "200.000000",  "500.000000"),
                  SoilIceContentProfileFileWriteEnd=c("Date12[DDMMYYYYhhmm]", "IDpoint", "20.000000", "50.000000", "200.000000", "500.000000"))
+  
 # read output
   data <- TopoSUB_read(wpath=simpath,
-                       keys= c("PointOutputFileWriteEnd","SoilLiqContentProfileFileWriteEnd", "SoilIceContentProfileFileWriteEnd"),
+                       keys= c("PointOutputFileWriteEnd","SoilLiqContentProfileFileWriteEnd", 
+                               "SoilIceContentProfileFileWriteEnd"),
                        select = select)
  
 # re-mapping for long term climate impact simulations
+  
+  # list defining variable, fun and postprocess
   
   var_in <- list(c("Evaptranspiration_mm_","sum",NULL), 
                  c("Ptotal_mm_","sum",NULL),
@@ -132,8 +136,9 @@ postprocess = c(method="critSWC_fc_wp", dry_thres="30")
                  c("SWC_ice_200","sum",method=NULL),
                  c("SWC_total_200","sum",method="critSWC_fc_wp",dry_thres="30"))
   
-# parallelisation - looping through var_in (definition of variable, fun, postprocess) with mclapply
-
+  # parallelisation - looping through var_in with mclapply
+  # applying TopoSUB_remap function
+  
   mclapply(var_in, function(x) {
     TopoSUB_remap(data = data, variable = x[1], wpath = simpath,
                   periods_aggr = list(aggr=c("season", "veg_period"), fun=x[2], 
@@ -144,11 +149,11 @@ postprocess = c(method="critSWC_fc_wp", dry_thres="30")
 ```
 
 
-## Output folders
+## Output in the TopoSUB simulation folder
 
-* _OUTcsv_
+* _OUTcsv_ containing monthly and yearly timeseries (.csv) for each cluster according to the aggergation and postprocess you applied. 
 
-* _OUTperiods_
+* _OUTperiods_ containing maps (GEOtiff) for all periods and difference maps according to the aggregation settings applied.
 
 ### Requirements
 
