@@ -32,7 +32,7 @@ library(TopoSUB)
 
 # Simulation Workflow
 
-A TopoSUB simulation is started with the function TopoSUB_preprocessor. After preparing GEOtop input files (raster maps, meteorological stations, horizon files, ...), the GEOtop configurationfile (geotop.inpts) and the TopoSUB configuration files (locations.txt, setup.txt), use this function to carry out landscape clustering and GEOtop point simulations, for computational intensive simulations preferable parallelized on a HPC server. See the function documentation for a short description.
+A TopoSUB simulation is started with the function TopoSUB_preprocessor. After preparing GEOtop input files (raster maps, meteorological input stations, horizon files, ...), the GEOtop configuration file (geotop.inpts) and the TopoSUB configuration files (locations.txt, setup.txt), use this function to carry out landscape clustering and GEOtop point simulations, for computational intensive simulations preferable parallelized on a HPC server. See the function documentation for a short description.
 
 ```R
 ?TopoSUB_preprocessor
