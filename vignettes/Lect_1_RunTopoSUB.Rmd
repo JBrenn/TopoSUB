@@ -108,6 +108,21 @@ The main structure of a TopoSUB simulation folder is provided by the GEOtop conf
 
 * the _landform .asc file_ is mapping the IDs of the cluster centroids for each grid cell of the simulation domain. This map is later on used for re-maping simulation variables (see Lect 2: How to Postprocess a TopoSUB sim).
 
+## Observed Data
+
+Observed data is stored station vise in .csv files within the master folder. The first column of each station file is reserved for the date, called _Index_, date format is _YYYY-MM-DD_, so time step is daily. Column names of soil moisture data do have the following specification: SWC_[SensorName]_z[DepthInCM]. Colnames of further variables have to be set according to the names of the output data.table of the function _TopoSUB_read_.
+
+Variable names to use can be obtained by sourcing _colnames_ from the TopoSUB package:
+
+```{r colnames, eval=FALSE}
+
+data("colnames")
+View(colnames)
+
+```
+
+A meta data file - _meta.csv_ - contains station names (same names as the .csv station file names), geographic coordinates and the elevation of the stations. For formating issues see the [example simulation](https://cloud.scientificnet.org/index.php/s/Y6UwKt79pFZp2uR).
+
 ### Requirements
 
 * current installation of R (>3.0.0)
