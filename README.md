@@ -41,7 +41,7 @@ A TopoSUB simulation is started with the function TopoSUB_preprocessor. After pr
 Postprocessing of the GEOtop output is perfomed by the functions
 
 * TopoSUB_read: reading GEOtop output, specified by keywords in geotop.inpts
-<!-- * TopoSUB_spread: speading the output data table of the function above for a specific variable -->
+
 * TopoSUB_remap: maping of the output data table of the function above for different time/climatic periods and/or differences of time/climatic periods
 
 An example simulation for the Montatschinig/Montecini region (LTER Matsch/Mazia) can be found [here](https://cloud.scientificnet.org/index.php/s/Y6UwKt79pFZp2uR). Use this example as a template to create an TopoSUB-GEOtop simulation folder. See also the TopoSUB configuration files (_locations.txt_ and _setup.txt_) and define parmeters, e.g. input/output folders, number of cluster centroids, specific switches, definitions for running the simulation on a HPC cluster, ... For running the example use the R script main_pre.R after changing the root folder and GEOtop LSM exe Path in locations.txt   
