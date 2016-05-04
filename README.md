@@ -54,8 +54,8 @@ Moreover, the package includes an easy to use shiny app for visualisation. Run i
 The TopoSUB package includes vignettes on the topics
 
 1. running a TopoSUB simulation
-2. postprocess a TopoSUB simulation
-3. visualisation of a TopoSUB output
+2. postprocessing a TopoSUB simulation
+3. visualisation of TopoSUB simulation output
 
 You can install the package with the option of building the vignettes and list/open them in an HTML browser:
 
