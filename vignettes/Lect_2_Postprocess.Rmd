@@ -1,5 +1,5 @@
 ---
-title: 'Lect 3: How to Visualize TopoSUB output'
+title: 'Lect 2: How to Postprocess a TopoSUB sim'
 author: "Johannes Brenner"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
