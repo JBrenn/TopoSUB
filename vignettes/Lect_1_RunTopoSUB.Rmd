@@ -1,5 +1,5 @@
 ---
-title: 'Lect 3: How to Run TopoSUB'
+title: 'Lect 1: How to Run TopoSUB'
 author: "Johannes Brenner"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -108,7 +108,7 @@ The main structure of a TopoSUB simulation folder is provided by the GEOtop conf
 
 * the _landform .asc file_ is mapping the IDs of the cluster centroids for each grid cell of the simulation domain. This map is later on used for re-maping simulation variables (see Lect 2: How to Postprocess a TopoSUB sim).
 
-## Requirements
+### Requirements
 
-* current installation of R (>3.0.0) and RStudio Desktop (>0.99)
-* [gdal](http://www.gdal.org/) and [proj4](https://github.com/OSGeo/proj.4)
+* current installation of R (>3.0.0)
+* [gdal](http://www.gdal.org/) and [proj4](https://github.com/OSGeo/proj.4) installed

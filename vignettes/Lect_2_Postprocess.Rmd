@@ -67,7 +67,7 @@ runApp(getwd())
 
 A browser window should open and show the shiny app interface. If your data is stored on a server reading map files is slow. You can improve speed by copying the simuation folder on your local machine.
 
-## Requirements
+### Requirements
 
-* current installation of R (>3.0.0) and RStudio Desktop (>0.99)
-* TopoSUB simulation run (see Lect 1: How to Run TopoSUB) and postprocessing (see Lect 2: How to Postprocess a TopoSUB sim)
+* current installation of R (>3.0.0)
+* [gdal](http://www.gdal.org/) and [proj4](https://github.com/OSGeo/proj.4) installed
