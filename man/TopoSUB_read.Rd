@@ -16,22 +16,27 @@ TopoSUB_read(wpath, keys, doLEHcalc=TRUE, SnowCoverThres=5, select, setup.file="
 path into topoSUB simulation
 }
 \item{keys}{
-keywords, for further information refer to \pkg{geotopbricks}
+vector of keywords, e.g. c("PointOutputFileWriteEnd","SoilLiqContentProfileFileWriteEnd", "SoilIceContentProfileFileWriteEnd"), for further information refer to \pkg{geotopbricks}
+}
+\item{select}{
+named list of variables to select, see select argument in data.table::fread, list names refer to argument keys, names of variable to select refer to coloumn names of TopoSUB-GEOtop output files
 }
 \item{doLEHcalc}{
 boolean, if TRUE (default) latent and sensible heat fluxes over canopy are calculated (for details see \emph{AnalyseGeotop::GEOtop_EfluxOcanopy})
 }
-\item{SnowCoverThres} Threshold (in mm H20) above which snow cover is given  
-}
-\item{select}{
-variables to select, see select argument in data.table::fread 
+\item{SnowCoverThres}{
+Threshold (in mm H20) above which a snow cover day is defined
 }
 \item{setup.file}{
-name of file defining TopoSUB model parameter
+name of TopoSUB setup configuration file
 }
 \item{add_listpoints}{
 boolean, if TRUE, attributes of listpoint file are join to output data, default=FALSE
 }
+\item{write_sqlite}{
+boolean, if TRUE, sqlite database is written from function output, default=FALSE
+}
+
 
 \details{
 %%  ~~ If necessary, more details than the description above ~~
@@ -62,5 +67,5 @@ Johannes Brenner, \email{Johannes.Brenner@eurac.edu}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{TopoSUB}
+\keyword{read output}% __ONLY ONE__ keyword per line
