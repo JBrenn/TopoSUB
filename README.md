@@ -48,7 +48,7 @@ An example simulation for the Montatschinig/Montecini region (LTER Matsch/Mazia)
 
 Moreover, the package includes an easy to use shiny app for visualisation. Run in the simulation folder it visualises the finally produced maps (still Beta-version, see folder _shiny_).
 
-The TopoSUB package includes some vignettes on the topics
+The TopoSUB package includes vignettes on the topics
 
 1. running a TopoSUB simulation
 2. postprocess a TopoSUB simulation
