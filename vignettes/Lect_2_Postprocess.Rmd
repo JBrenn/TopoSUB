@@ -13,59 +13,41 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Get GitHub Repository TopoSUB
+### is TopoSUB R-packages installed and can be loaded?
 
-Before starting download and unzip OR clone the [GitHub repository TopoSUB](https://github.com/JBrenn/TopoSUB):
-
-    git clone https://github.com/JBrenn/TopoSUB
-    
-Copy the files within the shiny folder (ui.R, server.R, runApp.R) in your TopoSUB simulation folder.
-
-## Dependencies
-
-Before running the app make sure you have installed the following libraries
-
-1. [data.table](https://cran.r-project.org/web/packages/data.table/index.html) an extension of data.frame - a table plug-in for jQuery,
-2. [tidyr](https://blog.rstudio.org/2014/07/22/introducing-tidyr/) makes it easy to “tidy” your data. Tidy data is data that’s easy to work with: it’s easy to munge (with dplyr), visualise (with ggplot2), ...
-3. [dplyr](https://blog.rstudio.org/2014/01/17/introducing-dplyr/) providing a set of tools for efficiently manipulating datasets in R,
-4. [raster](https://cran.r-project.org/web/packages/raster/index.html) for Geographic Data Analysis and Modeling,
-5. [ggplot2](http://ggplot2.org/) ggplot2 is a plotting system for R, based on the grammar of graphics, which tries to take the good parts of base and lattice graphics and none of the bad parts, 
-5. [leaflet](http://leafletjs.com/) is one of the most popular open-source JavaScript libraries for interactive maps,
-6. [shiny](http://shiny.rstudio.com/) a web application framework for R.
+Before starting make sure that the [TopoSUB R-package](https://github.com/JBrenn/TopoSUB) is installed and can be loaded:
 
 ```{r libraries, eval=FALSE}
 
-install.packages(c("data.table","tidyr","dplyr","raster","ggplot2","leaflet","shiny"))
+if(!require(TopoSUB))
+{
+  if(!require("devtools"))
+  {
+    install.packages(devtools)
+    require("devtools")
+  }
+  install_github("TopoSUB", "JBrenn")
+  require("TopoSUB")
+}
 
 ```
 
-## Running the shiny application 
+## Main functions
 
-Close RStudio, and double-click _runApp.R_ (in the TopoSUB simulation folder). This should open the R script in RStudio with your TopoSUB simulation folder as a working directory. The working directory is written above the R console, you can also check with
+The main functions for TopoSUB postprocessing are
 
-```{r getwd, eval=FALSE}
+1. TopoSUB_read is reading the TopoSUB simulation output data in a data.table, it is utilising the R-function data.table::fread for faster and more convenient reading of text files, for simulations run in parallel mode parallel reading of data is implemented. Some postprocessing is done on variable:
 
-getwd()
+* calculation of total precipitation (Ptotal_mm_) from rain and snow components
+* calculation of evapotranspiration (Evaptranspiration_mm_) from transpiration and evaporation
+* calculation of latent and sensible heat over the canopy (LE_over_canopy_W_m2_, H_over_canopy_W_m2_)
+* identification of snow cover days (SnowCover_days_) defined by the threshold argument _SnowCoverThres_
+* calculation of total soil water content by adding liquid and ice soil water content for each soil layer (e.g. SWC_total_200 in 20cm soil depth)
 
-```
 
-Execute the whole script: 
 
-```{r shinyApp, eval=FALSE}
+2. TopoSUB_remap
 
-library(shiny)
-library(leaflet)
-library(raster)
-library(data.table)
-library(tidyr)
-library(dplyr)
-library(ggplot2)
-
-runApp(getwd())
-
-```
-
-A browser window should open and show the shiny app interface. If your data is stored on a server reading map files is slow. You can improve speed by copying the simuation folder on your local machine.
 
 ### Requirements
 

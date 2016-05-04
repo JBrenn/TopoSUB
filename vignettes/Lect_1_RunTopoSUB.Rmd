@@ -32,9 +32,9 @@ if(!require(TopoSUB))
 
 ```
 
-## TopoSUB simulation folder
+## TopoSUB root folder
 
-A TopoSUB simulation folder exists of
+A TopoSUB root folder exists of
 
 * two TopoSUB configuration files, _locations.txt_ and _setup.txt_, 
 
