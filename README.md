@@ -38,6 +38,23 @@ A TopoSUB simulation is started with the function TopoSUB_preprocessor. After pr
 * TopoSUB_spread: speading the output data table of the function above for a specific variable
 * TopoSUB_remap: maping of the spreaded output for different time/climatic periods and/or differences of time/climatic periods
 
-An example simulation for the Montatschinig/Montecini region (LTER Matsch/Mazia) can be found [here](https://cloud.scientificnet.org/index.php/s/Y6UwKt79pFZp2uR). Use this example as a template to create an TopoSUB-GEOtop simulation folder. See also the files locations.txt and setup.txt for parmeters defining your simulation properties, e.g. input/output folders, number of cluster centroids, switches, definitions for running the simulation on a HPC cluster, ... For running the example use the R file main_pre.R after changing the root folder and GEOtop LSM exe Path in locations.txt   
+An example simulation for the Montatschinig/Montecini region (LTER Matsch/Mazia) can be found [here](https://cloud.scientificnet.org/index.php/s/Y6UwKt79pFZp2uR). Use this example as a template to create an TopoSUB-GEOtop simulation folder. See also the TopoSUB configuration files (_locations.txt_ and _setup.txt_) and define parmeters, e.g. input/output folders, number of cluster centroids, specific switches, definitions for running the simulation on a HPC cluster, ... For running the example use the R script main_pre.R after changing the root folder and GEOtop LSM exe Path in locations.txt   
 
-Moreover, the package includes an easy to use shiny app. Run in the simulation folder it visualises the finally produced maps (still Beta-version, see folder _shiny_).
+Moreover, the package includes an easy to use shiny app for visualisation. Run in the simulation folder it visualises the finally produced maps (still Beta-version, see folder _shiny_).
+
+The TopoSUB package includes some vignettes on the topics
+
+1. running a TopoSUB simulation
+2. postprocess a TopoSUB simulation
+3. visualisation of a TopoSUB output
+
+You can install the package with the option of building the vignettes and list/open them in an HTML browser:
+
+```R
+library(devtools)
+install_github("JBrenn/TopoSUB", build_vignettes = TRUE)
+
+browseVignettes("TopoSUB")
+```
+
+
