@@ -4,7 +4,7 @@ author: "Johannes Brenner"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Lect 3 Visualisation}
+  %\VignetteIndexEntry{Lect 3 Postprocess}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
