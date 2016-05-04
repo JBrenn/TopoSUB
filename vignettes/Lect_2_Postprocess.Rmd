@@ -34,9 +34,16 @@ if(!require(TopoSUB))
 
 ## Main functions
 
-The main functions for TopoSUB postprocessing are
+The main functions for TopoSUB postprocessing are reading and remaping the output variables of a TopoSUB simulation. Look at their descripton!
 
-1. TopoSUB_read is reading the TopoSUB simulation output data in a data.table, it is utilising the R-function data.table::fread for faster and more convenient reading of text files, for simulations run in parallel mode parallel reading of data is implemented. Some postprocessing is done on variable:
+```{r help, eval=FALSE}
+
+?TopoSUB_read
+?TopoSUB_remap
+
+```
+
+1. **TopoSUB_read** is reading the TopoSUB simulation output data in a data.table, it is utilising the R-function data.table::fread for faster and more convenient reading of text files, for simulations run in parallel mode parallel reading of data is implemented. Some postprocessing is done on variable:
 
 * calculation of total precipitation (Ptotal_mm_) from rain and snow components
 * calculation of evapotranspiration (Evaptranspiration_mm_) from transpiration and evaporation
@@ -44,10 +51,104 @@ The main functions for TopoSUB postprocessing are
 * identification of snow cover days (SnowCover_days_) defined by the threshold argument _SnowCoverThres_
 * calculation of total soil water content by adding liquid and ice soil water content for each soil layer (e.g. SWC_total_200 in 20cm soil depth)
 
+2. **TopoSUB_remap** is over-taking the data.table object (argument data) and is re-mapping variable vise (argument variable) according to the TopoSUB output map landform .asc. Variable names to use can be obtained by sourcing colnames from the TopoSUB package:
+
+```{r colnames, eval=FALSE}
+
+data("colnames")
+View(colnames)
+
+```
+
+The further arguments are a bit more complex and shortly described below:
+
+* **periods** is a names list defining the periods which are compared, so minimum two time periods are to set, preferable climatic time frames (30 years). This is a named list, which first entry "baseline" is substracted from the other periods. Every period is aggregated over the whole time frame, the aggregation is defined in the argument
+
+* **periods_aggr**, which is a named list of three entries: **aggr** defines the time aggregation, e.g. seasons (season), vegetation period (veg_period), by default there is always a aggregation for the whole year. **fun** defines the aggregation function, which is either "mean" or "sum" over the aggragation period. **diff** defines if the "absolute" or "percentage" difference between the periods is assessed.
+
+* **sequence** is meant to produce map animations over a specific time period. It's not implemented yet.
+
+* **postprocess** is defining a further postprocess step for specific variables, e.g. number of drought day calculated from soil water content, see \code{?TopoSUB_POSTcritSWC_fc_wp}. 
+
+For clarification see the definitions of the arguments below:
+
+```{r periods, eval=FALSE}
+
+periods = list(baseline = c(1980,2010), per1 = c(2020,2050), 
+                            per2 = c(2045,2075), per3 = c(2070,2100))
+
+periods_aggr = list(aggr = c("season", "veg_period"), fun = "mean", 
+                                  diff = c("absolute","percentage"))
+
+postprocess = c(method="critSWC_fc_wp", dry_thres="30")
+
+```
 
 
-2. TopoSUB_remap
+## Example script
 
+```{r example, eval=FALSE}
+#==============================================================================
+# run TopoSUB postprocessing
+#==============================================================================
+
+# set working directory to TopoSUB simulation folder
+
+# can also be run with working directory in root TopoSUB folder
+# if location configuration didn't change
+
+# load parallel library
+  library(parallel)
+  
+# setup file
+  setupfile = "setup.txt"
+  
+# read location file
+  locationfile = "locations.txt"
+  
+  locations <- read.csv(locationfile, header = F, colClasses="character")
+  apply(X = locations[,c(2,3)], MARGIN = 1,
+        FUN = function(x) assign(x = x[1], value = x[2], envir = .GlobalEnv) )
+
+# get sim path from location file
+  simpath <- file.path(root, sim, "1d", paste("1d_",exper1,sep=""), formatC(as.integer(es),0,6,flag = "0"))
+  
+# define selection  argument  
+  select <- list(PointOutputFileWriteEnd=c("Date12[DDMMYYYYhhmm]", "IDpoint", "Tair[C]", "Prain_over_canopy[mm]", "Psnow_over_canopy[mm]", "snow_water_equivalent[mm]", "Evap_surface[mm]", "Trasp_canopy[mm]", "Hv[W/m2]", "LEv[W/m2]", "Hg_unveg[W/m2]", "LEg_unveg[W/m2]", "Hg_veg[W/m2]", "LEg_veg[W/m2]", "Canopy_fraction[-]"), 
+                 SoilLiqContentProfileFileWriteEnd=c("Date12[DDMMYYYYhhmm]", "IDpoint", "20.000000", "50.000000", "200.000000",  "500.000000"),
+                 SoilIceContentProfileFileWriteEnd=c("Date12[DDMMYYYYhhmm]", "IDpoint", "20.000000", "50.000000", "200.000000", "500.000000"))
+# read output
+  data <- TopoSUB_read(wpath=simpath,
+                       keys= c("PointOutputFileWriteEnd","SoilLiqContentProfileFileWriteEnd", "SoilIceContentProfileFileWriteEnd"),
+                       select = select)
+ 
+# re-mapping for long term climate impact simulations
+  
+  var_in <- list(c("Evaptranspiration_mm_","sum",NULL), 
+                 c("Ptotal_mm_","sum",NULL),
+                 c("snow_water_equivalent_mm_","sum",NULL), 
+                 c("SnowCover_days_","sum",NULL),
+                 c("SWC_total_200","mean",NULL), 
+                 c("SWC_ice_200","sum",method=NULL),
+                 c("SWC_total_200","sum",method="critSWC_fc_wp",dry_thres="30"))
+  
+# parallelisation - looping through var_in (definition of variable, fun, postprocess) with mclapply
+
+  mclapply(var_in, function(x) {
+    TopoSUB_remap(data = data, variable = x[1], wpath = simpath,
+                  periods_aggr = list(aggr=c("season", "veg_period"), fun=x[2], 
+                                      diff = c("absolute","percentage")),
+                  sequence=NULL, postprocess=x[3:length(x)])
+  }, data=data, simpath=simpath)
+
+```
+
+
+## Output folders
+
+* _OUTcsv_
+
+* _OUTperiods_
 
 ### Requirements
 
