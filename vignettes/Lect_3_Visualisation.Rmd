@@ -32,8 +32,8 @@ Before running the app make sure you have installed the following libraries
 3. [dplyr](https://blog.rstudio.org/2014/01/17/introducing-dplyr/) providing a set of tools for efficiently manipulating datasets in R,
 4. [raster](https://cran.r-project.org/web/packages/raster/index.html) for Geographic Data Analysis and Modeling,
 5. [ggplot2](http://ggplot2.org/) ggplot2 is a plotting system for R, based on the grammar of graphics, which tries to take the good parts of base and lattice graphics and none of the bad parts, 
-5. [leaflet](http://leafletjs.com/) is one of the most popular open-source JavaScript libraries for interactive maps,
-6. [shiny](http://shiny.rstudio.com/) a web application framework for R.
+6. [leaflet](http://leafletjs.com/) is one of the most popular open-source JavaScript libraries for interactive maps,
+7. [shiny](http://shiny.rstudio.com/) a web application framework for R.
 
 ```{r libraries, eval=FALSE}
 
