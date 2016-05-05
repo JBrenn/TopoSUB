@@ -69,6 +69,10 @@ runApp(getwd())
 
 A browser window should open and show the shiny app interface. If your data is stored on a server reading map files is slow. You can improve speed by copying the simuation folder (at least the folders _OUTperiods_ and _OUTcsv_, as well as the file _listpoints.txt_) on your local machine.
 
+## Station vise validation
+
+For information on the formating of the observation data see _Lect 1 RunTopoSUB_. The R markdown document _Verification GEOtop-TopoSUB point simulation.Rmd_ acts as validation script, you can get it from the TopoSUB [GitHUB repository](https://github.com/JBrenn/TopoSUB).
+
 ### Requirements
 
 * current installation of R (>3.0.0) and RStudio Desktop (>0.99)
