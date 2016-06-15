@@ -13,7 +13,7 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Get GitHub Repository TopoSUB
+## Get GitHub Repository TopoSUB or install R library
 
 Before starting download and unzip OR clone the [GitHub repository TopoSUB](https://github.com/JBrenn/TopoSUB):
 
@@ -22,6 +22,14 @@ git clone https://github.com/JBrenn/TopoSUB
 ```
 
 Copy the files within the shiny folder (ui.R, server.R, runApp.R) in your TopoSUB simulation folder.
+
+If the R library __TopoSUB__ is already installed you will find the shiny folder in your package installation folder. The package installation path can be found like follows:
+
+```{r libraries, eval=FALSE}
+
+find.package("TopoSUB")
+
+```
 
 ## Dependencies
 
