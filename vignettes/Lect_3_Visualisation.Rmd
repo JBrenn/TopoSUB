@@ -25,7 +25,7 @@ Copy the files within the shiny folder (ui.R, server.R, runApp.R) in your TopoSU
 
 If the R library __TopoSUB__ is already installed you will find the shiny folder in your package installation folder. The package installation path can be found like follows:
 
-```{r libraries, eval=FALSE}
+```{r libraries1, eval=FALSE}
 
 find.package("TopoSUB")
 
@@ -43,7 +43,7 @@ Before running the app make sure you have installed the following libraries
 6. [leaflet](http://leafletjs.com/) is one of the most popular open-source JavaScript libraries for interactive maps,
 7. [shiny](http://shiny.rstudio.com/) a web application framework for R.
 
-```{r libraries, eval=FALSE}
+```{r libraries2, eval=FALSE}
 
 install.packages(c("data.table","tidyr","dplyr","raster","ggplot2","leaflet","shiny"))
 
